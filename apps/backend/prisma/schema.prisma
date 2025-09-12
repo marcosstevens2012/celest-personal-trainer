@@ -1,0 +1,166 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Trainer {
+  id             String   @id @default(cuid())
+  email          String   @unique
+  name           String
+  bio            String?
+  specialties    String[]
+  certifications String[]
+  profileImage   String?
+  phone          String?
+  instagram      String?
+  whatsapp       String?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  students Student[]
+  plans    Plan[]
+  payments Payment[]
+
+  @@map("trainers")
+}
+
+model Student {
+  id                String    @id @default(cuid())
+  trainerId         String
+  name              String
+  email             String
+  phone             String?
+  birthDate         DateTime?
+  goals             String[]
+  medicalConditions String?
+  emergencyContact  Json?     // { name, phone, relationship }
+  isActive          Boolean   @default(true)
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+
+  trainer  Trainer   @relation(fields: [trainerId], references: [id], onDelete: Cascade)
+  plans    Plan[]
+  payments Payment[]
+
+  @@map("students")
+}
+
+model Plan {
+  id          String   @id @default(cuid())
+  trainerId   String
+  studentId   String?  // null for template plans
+  name        String
+  description String?
+  startDate   DateTime?
+  endDate     DateTime?
+  isTemplate  Boolean  @default(false)
+  isActive    Boolean  @default(true)
+  price       Float?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  trainer  Trainer    @relation(fields: [trainerId], references: [id], onDelete: Cascade)
+  student  Student?   @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  planDays PlanDay[]
+  payments Payment[]
+
+  @@map("plans")
+}
+
+model PlanDay {
+  id        String   @id @default(cuid())
+  planId    String
+  dayNumber Int      // 1, 2, 3, etc.
+  name      String   // e.g., "Día 1 - Tren Superior"
+  notes     String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  plan       Plan        @relation(fields: [planId], references: [id], onDelete: Cascade)
+  planBlocks PlanBlock[]
+
+  @@unique([planId, dayNumber])
+  @@map("plan_days")
+}
+
+model PlanBlock {
+  id        String    @id @default(cuid())
+  planDayId String
+  name      String    // e.g., "Calentamiento", "Fuerza", "Cardio"
+  order     Int       // Order within the day
+  notes     String?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  planDay   PlanDay    @relation(fields: [planDayId], references: [id], onDelete: Cascade)
+  planItems PlanItem[]
+
+  @@unique([planDayId, order])
+  @@map("plan_blocks")
+}
+
+model PlanItem {
+  id          String  @id @default(cuid())
+  planBlockId String
+  exercise    String  // Exercise name or description
+  sets        Int?
+  reps        String? // Can be "8-12", "30 sec", etc.
+  weight      String? // Can be "12kg", "bodyweight", etc.
+  duration    String? // For cardio exercises
+  restTime    String? // Rest between sets
+  notes       String?
+  order       Int     // Order within the block
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  planBlock PlanBlock @relation(fields: [planBlockId], references: [id], onDelete: Cascade)
+
+  @@unique([planBlockId, order])
+  @@map("plan_items")
+}
+
+model Payment {
+  id            String        @id @default(cuid())
+  trainerId     String
+  studentId     String
+  planId        String?
+  amount        Float
+  currency      String        @default("USD")
+  method        PaymentMethod
+  status        PaymentStatus @default(PENDING)
+  transactionId String?
+  notes         String?
+  dueDate       DateTime
+  paidDate      DateTime?
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+
+  trainer Trainer  @relation(fields: [trainerId], references: [id], onDelete: Cascade)
+  student Student  @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  plan    Plan?    @relation(fields: [planId], references: [id], onDelete: SetNull)
+
+  @@map("payments")
+}
+
+enum PaymentMethod {
+  CASH
+  TRANSFER
+  CARD
+  CRYPTO
+  OTHER
+}
+
+enum PaymentStatus {
+  PENDING
+  COMPLETED
+  FAILED
+  REFUNDED
+  OVERDUE
+}

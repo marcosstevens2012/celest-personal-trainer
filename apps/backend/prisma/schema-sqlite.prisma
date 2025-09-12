@@ -1,0 +1,159 @@
+// Prisma schema for development with SQLite
+// Switch back to PostgreSQL when Supabase is configured
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Trainer {
+  id             String   @id @default(cuid())
+  email          String   @unique
+  name           String
+  bio            String?
+  specialties    String   // JSON string for SQLite
+  certifications String   // JSON string for SQLite
+  profileImage   String?
+  phone          String?
+  instagram      String?
+  whatsapp       String?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  students Student[]
+  plans    Plan[]
+  payments Payment[]
+
+  @@map("trainers")
+}
+
+model Student {
+  id                String    @id @default(cuid())
+  trainerId         String
+  name              String
+  email             String
+  phone             String?
+  birthDate         DateTime?
+  goals             String    // JSON string for SQLite
+  medicalConditions String?
+  emergencyContact  String?   // JSON string for SQLite
+  isActive          Boolean   @default(true)
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+
+  trainer  Trainer   @relation(fields: [trainerId], references: [id], onDelete: Cascade)
+  plans    Plan[]
+  payments Payment[]
+
+  @@map("students")
+}
+
+model Plan {
+  id              String    @id @default(cuid())
+  trainerId       String
+  studentId       String?
+  name            String
+  description     String?
+  price           Float
+  duration        String?
+  features        String    // JSON string for SQLite
+  planType        String    @default("PERSONAL")
+  difficultyLevel String    @default("BEGINNER")
+  categoryTags    String    // JSON string for SQLite
+  startDate       DateTime?
+  endDate         DateTime?
+  isActive        Boolean   @default(true)
+  notes           String?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  trainer  Trainer    @relation(fields: [trainerId], references: [id], onDelete: Cascade)
+  student  Student?   @relation(fields: [studentId], references: [id], onDelete: SetNull)
+  days     PlanDay[]
+  payments Payment[]
+
+  @@map("plans")
+}
+
+model PlanDay {
+  id          String      @id @default(cuid())
+  planId      String
+  dayNumber   Int
+  name        String
+  description String?
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+
+  plan   Plan        @relation(fields: [planId], references: [id], onDelete: Cascade)
+  blocks PlanBlock[]
+
+  @@unique([planId, dayNumber])
+  @@map("plan_days")
+}
+
+model PlanBlock {
+  id          String     @id @default(cuid())
+  planDayId   String
+  blockNumber Int
+  name        String
+  description String?
+  restTime    Int?       // in seconds
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+
+  planDay PlanDay     @relation(fields: [planDayId], references: [id], onDelete: Cascade)
+  items   PlanItem[]
+
+  @@unique([planDayId, blockNumber])
+  @@map("plan_blocks")
+}
+
+model PlanItem {
+  id          String   @id @default(cuid())
+  planBlockId String
+  itemNumber  Int
+  exerciseId  String?  // Future: reference to Exercise model
+  name        String
+  sets        Int?
+  reps        String?  // e.g., "12", "8-10", "AMRAP"
+  weight      String?  // e.g., "60kg", "BW+20kg"
+  duration    Int?     // in seconds, for time-based exercises
+  distance    Float?   // in meters, for distance-based exercises
+  restTime    Int?     // in seconds
+  notes       String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  planBlock PlanBlock @relation(fields: [planBlockId], references: [id], onDelete: Cascade)
+
+  @@unique([planBlockId, itemNumber])
+  @@map("plan_items")
+}
+
+model Payment {
+  id            String    @id @default(cuid())
+  trainerId     String
+  studentId     String
+  planId        String?
+  amount        Float
+  currency      String    @default("EUR")
+  status        String    @default("PENDING")
+  paymentMethod String?
+  stripePaymentIntentId String?
+  dueDate       DateTime
+  paidDate      DateTime?
+  description   String?
+  metadata      String?   // JSON string for additional data
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  trainer Trainer @relation(fields: [trainerId], references: [id], onDelete: Cascade)
+  student Student @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  plan    Plan?   @relation(fields: [planId], references: [id], onDelete: SetNull)
+
+  @@map("payments")
+}
