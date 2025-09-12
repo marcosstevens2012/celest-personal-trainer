@@ -1,8 +1,8 @@
-# Celest Personal Trainer
+# 🏋️‍♂️ Celest Personal Trainer Platform
 
-Plataforma de gestión para entrenadores personales construida con Turborepo y Next.js.
+A comprehensive personal training management platform built with modern web technologies. This monorepo contains all the applications needed to run a complete personal training business.
 
-## 🏗️ Arquitectura
+## 🚀 Applications
 
 ### Monorepo Structure
 
