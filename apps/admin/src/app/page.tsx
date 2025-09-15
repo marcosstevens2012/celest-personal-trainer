@@ -61,45 +61,52 @@ export default function Dashboard() {
     try {
       setDataLoading(true);
 
-      // Mock data for demonstration - replace with real API calls
-      setKpiData({
-        totalStudents: 45,
-        activeStudents: 38,
-        totalPlans: 12,
-        activePlans: 8,
-        monthlyRevenue: 3200,
-        pendingPayments: 5,
-        overduePayments: 2,
+      // Obtener el token de auth
+      const token = localStorage.getItem("auth_token");
+      if (!token) {
+        router.push("/auth/signin");
+        return;
+      }
+
+      // Llamar a la API real
+      const response = await fetch("/api/dashboard/stats", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
       });
 
-      setRecentActivity([
-        {
-          id: "1",
-          type: "student",
-          message: "Nuevo estudiante registrado: María González",
-          date: "2025-09-11T10:30:00Z",
-        },
-        {
-          id: "2",
-          type: "payment",
-          message: "Pago recibido de Juan Pérez - $80",
-          date: "2025-09-11T09:15:00Z",
-        },
-        {
-          id: "3",
-          type: "plan",
-          message: "Plan 'Fuerza Avanzada' asignado a Carlos Ruiz",
-          date: "2025-09-10T16:45:00Z",
-        },
-        {
-          id: "4",
-          type: "student",
-          message: "Estudiante Ana López completó evaluación inicial",
-          date: "2025-09-10T14:20:00Z",
-        },
-      ]);
+      if (response.ok) {
+        const result = await response.json();
+        setKpiData(result.data.kpiData);
+        setRecentActivity(result.data.recentActivity);
+      } else {
+        console.error("Error loading dashboard data");
+        // Fallback a datos básicos
+        setKpiData({
+          totalStudents: 0,
+          activeStudents: 0,
+          totalPlans: 0,
+          activePlans: 0,
+          monthlyRevenue: 0,
+          pendingPayments: 0,
+          overduePayments: 0,
+        });
+        setRecentActivity([]);
+      }
     } catch (error) {
       console.error("Error loading dashboard data:", error);
+      // Fallback en caso de error
+      setKpiData({
+        totalStudents: 0,
+        activeStudents: 0,
+        totalPlans: 0,
+        activePlans: 0,
+        monthlyRevenue: 0,
+        pendingPayments: 0,
+        overduePayments: 0,
+      });
+      setRecentActivity([]);
     } finally {
       setDataLoading(false);
     }
