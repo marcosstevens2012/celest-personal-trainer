@@ -3,11 +3,27 @@ import { PrismaClient } from "@prisma/client";
 const prisma = new PrismaClient();
 
 async function main() {
-  // Create a trainer
-  const trainer = await prisma.trainer.upsert({
+  // Create a user for authentication
+  const user = await prisma.user.upsert({
     where: { email: "trainer@example.com" },
     update: {},
     create: {
+      email: "trainer@example.com",
+      name: "Carlos Rodríguez",
+      role: "trainer",
+    },
+  });
+
+  console.log("Created user:", user);
+
+  // Create a trainer and connect it to the user
+  const trainer = await prisma.trainer.upsert({
+    where: { email: "trainer@example.com" },
+    update: {
+      userId: user.id, // Connect to user
+    },
+    create: {
+      userId: user.id, // Connect to user
       name: "Carlos Rodríguez",
       email: "trainer@example.com",
       bio: "Entrenador personal certificado con más de 5 años de experiencia",

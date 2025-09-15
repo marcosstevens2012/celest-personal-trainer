@@ -1,12 +1,12 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
+// Prisma schema for development with SQLite
+// Switch back to PostgreSQL when Supabase is configured
 
 generator client {
   provider = "prisma-client-js"
 }
 
 datasource db {
-  provider = "postgresql"
+  provider = "sqlite"
   url      = env("DATABASE_URL")
 }
 
@@ -15,8 +15,8 @@ model Trainer {
   email          String   @unique
   name           String
   bio            String?
-  specialties    String[]
-  certifications String[]
+  specialties    String   // JSON string for SQLite
+  certifications String   // JSON string for SQLite
   profileImage   String?
   phone          String?
   instagram      String?
@@ -27,140 +27,196 @@ model Trainer {
   students Student[]
   plans    Plan[]
   payments Payment[]
+  studentNotes StudentNote[]
+  planNotes PlanNote[]
+  weeklyChecks WeeklyCheck[]
 
   @@map("trainers")
 }
 
 model Student {
-  id                String    @id @default(cuid())
+  id                String        @id @default(cuid())
   trainerId         String
   name              String
-  email             String
-  phone             String?
+  lastName          String
+  alias             String?
+  email             String?
+  phone             String        // WhatsApp (required)
   birthDate         DateTime?
-  goals             String[]
+  goals             String        // JSON string for SQLite
   medicalConditions String?
-  emergencyContact  Json?     // { name, phone, relationship }
-  isActive          Boolean   @default(true)
-  createdAt         DateTime  @default(now())
-  updatedAt         DateTime  @updatedAt
+  emergencyContact  String?       // JSON string for SQLite
+  monthlyFee        Float         // Cuota mensual en pesos argentinos
+  status            String        @default("ACTIVE") // ACTIVE, PAUSED, INACTIVE
+  notes             String?       // Observaciones
+  signUpDate        DateTime      @default(now()) // Fecha de alta
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
 
-  trainer  Trainer   @relation(fields: [trainerId], references: [id], onDelete: Cascade)
+  trainer  Trainer     @relation(fields: [trainerId], references: [id], onDelete: Cascade)
   plans    Plan[]
   payments Payment[]
+  notes_records StudentNote[]
 
   @@map("students")
 }
 
 model Plan {
-  id          String   @id @default(cuid())
-  trainerId   String
-  studentId   String?  // null for template plans
-  name        String
-  description String?
-  startDate   DateTime?
-  endDate     DateTime?
-  isTemplate  Boolean  @default(false)
-  isActive    Boolean  @default(true)
-  price       Float?
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id              String     @id @default(cuid())
+  trainerId       String
+  studentId       String?
+  name            String
+  description     String?
+  price           Float      // En pesos argentinos
+  duration        String?    // ej: "4 semanas", "2 meses"
+  features        String     // JSON string for SQLite
+  planType        String     @default("PERSONAL")
+  difficultyLevel String     @default("BEGINNER")
+  categoryTags    String     // JSON string for SQLite
+  startDate       DateTime?
+  endDate         DateTime?
+  isActive        Boolean    @default(true)
+  isTemplate      Boolean    @default(false) // Para plantillas reutilizables
+  publicToken     String?    @unique // Para URL pública
+  notes           String?
+  createdAt       DateTime   @default(now())
+  updatedAt       DateTime   @updatedAt
 
-  trainer  Trainer    @relation(fields: [trainerId], references: [id], onDelete: Cascade)
-  student  Student?   @relation(fields: [studentId], references: [id], onDelete: Cascade)
-  planDays PlanDay[]
+  trainer  Trainer      @relation(fields: [trainerId], references: [id], onDelete: Cascade)
+  student  Student?     @relation(fields: [studentId], references: [id], onDelete: SetNull)
+  days     PlanDay[]
   payments Payment[]
+  planNotes PlanNote[]
+  weeklyChecks WeeklyCheck[]
 
   @@map("plans")
 }
 
 model PlanDay {
-  id        String   @id @default(cuid())
-  planId    String
-  dayNumber Int      // 1, 2, 3, etc.
-  name      String   // e.g., "Día 1 - Tren Superior"
-  notes     String?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id          String      @id @default(cuid())
+  planId      String
+  dayNumber   Int
+  name        String
+  description String?
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
 
-  plan       Plan        @relation(fields: [planId], references: [id], onDelete: Cascade)
-  planBlocks PlanBlock[]
+  plan   Plan        @relation(fields: [planId], references: [id], onDelete: Cascade)
+  blocks PlanBlock[]
 
   @@unique([planId, dayNumber])
   @@map("plan_days")
 }
 
 model PlanBlock {
-  id        String    @id @default(cuid())
-  planDayId String
-  name      String    // e.g., "Calentamiento", "Fuerza", "Cardio"
-  order     Int       // Order within the day
-  notes     String?
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
+  id          String          @id @default(cuid())
+  planDayId   String
+  blockNumber Int
+  blockType   String          @default("CIRCUIT1") // WARMUP, CIRCUIT1, CIRCUIT2, CIRCUIT3, EXTRA 
+  name        String
+  description String?
+  restTime    Int?            // in seconds
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
 
-  planDay   PlanDay    @relation(fields: [planDayId], references: [id], onDelete: Cascade)
-  planItems PlanItem[]
+  planDay PlanDay     @relation(fields: [planDayId], references: [id], onDelete: Cascade)
+  items   PlanItem[]
 
-  @@unique([planDayId, order])
+  @@unique([planDayId, blockNumber])
   @@map("plan_blocks")
 }
 
 model PlanItem {
-  id          String  @id @default(cuid())
+  id          String   @id @default(cuid())
   planBlockId String
-  exercise    String  // Exercise name or description
+  itemNumber  Int
+  exerciseId  String?  // Future: reference to Exercise model
+  name        String
   sets        Int?
-  reps        String? // Can be "8-12", "30 sec", etc.
-  weight      String? // Can be "12kg", "bodyweight", etc.
-  duration    String? // For cardio exercises
-  restTime    String? // Rest between sets
+  reps        String?  // e.g., "12", "8-10", "AMRAP"
+  weight      String?  // e.g., "60kg", "BW+20kg"
+  duration    Int?     // in seconds, for time-based exercises
+  distance    Float?   // in meters, for distance-based exercises
+  restTime    Int?     // in seconds
   notes       String?
-  order       Int     // Order within the block
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
   planBlock PlanBlock @relation(fields: [planBlockId], references: [id], onDelete: Cascade)
 
-  @@unique([planBlockId, order])
+  @@unique([planBlockId, itemNumber])
   @@map("plan_items")
 }
 
 model Payment {
-  id            String        @id @default(cuid())
+  id            String    @id @default(cuid())
   trainerId     String
   studentId     String
   planId        String?
-  amount        Float
-  currency      String        @default("USD")
-  method        PaymentMethod
-  status        PaymentStatus @default(PENDING)
-  transactionId String?
-  notes         String?
+  amount        Float     // En pesos argentinos
+  currency      String    @default("ARS") // Pesos argentinos
+  status        String    @default("PENDING")
+  paymentMethod String?
+  stripePaymentIntentId String?
   dueDate       DateTime
   paidDate      DateTime?
-  createdAt     DateTime      @default(now())
-  updatedAt     DateTime      @updatedAt
+  description   String?
+  metadata      String?   // JSON string for additional data
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
 
-  trainer Trainer  @relation(fields: [trainerId], references: [id], onDelete: Cascade)
-  student Student  @relation(fields: [studentId], references: [id], onDelete: Cascade)
-  plan    Plan?    @relation(fields: [planId], references: [id], onDelete: SetNull)
+  trainer Trainer @relation(fields: [trainerId], references: [id], onDelete: Cascade)
+  student Student @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  plan    Plan?   @relation(fields: [planId], references: [id], onDelete: SetNull)
 
   @@map("payments")
 }
 
-enum PaymentMethod {
-  CASH
-  TRANSFER
-  CARD
-  CRYPTO
-  OTHER
+// Modelo para notas de seguimiento de estudiantes
+model StudentNote {
+  id        String   @id @default(cuid())
+  trainerId String
+  studentId String
+  note      String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  trainer Trainer @relation(fields: [trainerId], references: [id], onDelete: Cascade)
+  student Student @relation(fields: [studentId], references: [id], onDelete: Cascade)
+
+  @@map("student_notes")
 }
 
-enum PaymentStatus {
-  PENDING
-  COMPLETED
-  FAILED
-  REFUNDED
-  OVERDUE
+// Modelo para notas de planes
+model PlanNote {
+  id        String   @id @default(cuid())
+  trainerId String
+  planId    String
+  note      String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  trainer Trainer @relation(fields: [trainerId], references: [id], onDelete: Cascade)
+  plan    Plan    @relation(fields: [planId], references: [id], onDelete: Cascade)
+
+  @@map("plan_notes")
+}
+
+// Modelo para check semanal de planes completados
+model WeeklyCheck {
+  id        String   @id @default(cuid())
+  trainerId String
+  planId    String
+  weekNumber Int     // Semana del plan
+  isCompleted Boolean @default(false)
+  completedDate DateTime?
+  notes     String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  trainer Trainer @relation(fields: [trainerId], references: [id], onDelete: Cascade)
+  plan    Plan    @relation(fields: [planId], references: [id], onDelete: Cascade)
+
+  @@unique([planId, weekNumber])
+  @@map("weekly_checks")
 }
