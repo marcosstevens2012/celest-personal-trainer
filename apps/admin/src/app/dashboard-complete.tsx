@@ -1,8 +1,6 @@
 "use client";
 
 import { useAuth } from "@/components/auth-provider";
-import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
@@ -10,10 +8,12 @@ import {
   Calendar,
   DollarSign,
   FileText,
+  LogOut,
   TrendingUp,
   Users,
-  LogOut,
 } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 
 interface KPIData {
   totalStudents: number;
@@ -207,7 +207,11 @@ export default function Dashboard() {
               Resumen de tu actividad como entrenador personal
             </p>
           </div>
-          <Button onClick={handleLogout} variant="outline" className="flex items-center gap-2">
+          <Button
+            onClick={handleLogout}
+            variant="outline"
+            className="flex items-center gap-2"
+          >
             <LogOut className="h-4 w-4" />
             Cerrar Sesión
           </Button>
@@ -276,7 +280,10 @@ export default function Dashboard() {
                     const ActivityIcon = icon;
 
                     return (
-                      <div key={activity.id} className="flex items-start space-x-3">
+                      <div
+                        key={activity.id}
+                        className="flex items-start space-x-3"
+                      >
                         <div className="flex-shrink-0">
                           <ActivityIcon className={`h-5 w-5 ${iconColor}`} />
                         </div>
@@ -323,7 +330,9 @@ export default function Dashboard() {
                   <button className="w-full flex items-center justify-between p-3 text-left border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
                     <div className="flex items-center">
                       <DollarSign className="h-5 w-5 text-emerald-500 mr-3" />
-                      <span className="text-sm font-medium">Registrar Pago</span>
+                      <span className="text-sm font-medium">
+                        Registrar Pago
+                      </span>
                     </div>
                     <span className="text-xs text-gray-500">→</span>
                   </button>
@@ -365,7 +374,10 @@ export default function Dashboard() {
                 </div>
                 <div className="text-center">
                   <div className="text-3xl font-bold text-purple-600">
-                    {Math.round(kpiData.monthlyRevenue / kpiData.activeStudents)}€
+                    {Math.round(
+                      kpiData.monthlyRevenue / kpiData.activeStudents
+                    )}
+                    €
                   </div>
                   <div className="text-sm text-gray-600 mt-1">
                     Ingreso Promedio por Estudiante
