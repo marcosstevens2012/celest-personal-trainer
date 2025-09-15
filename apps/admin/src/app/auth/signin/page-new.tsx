@@ -154,7 +154,7 @@ export default function SignIn() {
             </Button>
 
             {/* Credenciales demo */}
-            <div className="p-4 rounded-lg bg-muted/50 border border-border/50">
+            <div className="p-4 rounded-lg bg-muted/50 border border-slate-200">
               <div className="flex items-center justify-between mb-2">
                 <span className="text-sm font-medium">Credenciales Demo</span>
                 <Badge variant="secondary">Test</Badge>

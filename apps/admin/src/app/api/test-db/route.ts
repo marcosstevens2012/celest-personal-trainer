@@ -1,9 +1,7 @@
 import { PrismaClient } from "@prisma/client";
 import { NextResponse } from "next/server";
 
-const prisma = new PrismaClient({
-  datasourceUrl: "file:../../../../backend/prisma/dev.db",
-});
+const prisma = new PrismaClient();
 
 export async function GET() {
   try {
