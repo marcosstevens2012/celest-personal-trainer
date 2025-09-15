@@ -40,9 +40,13 @@ export default function SignIn() {
     }
   };
 
+  const handleGoogleSignIn = () => {
+    signIn("google", { callbackUrl: "/" });
+  };
+
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 p-4">
-      <div className="w-full max-w-md space-y-8">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 to-slate-100 px-4">
+      <div className="w-full max-w-md space-y-6">
         {/* Logo y título */}
         <div className="text-center space-y-2">
           <div className="mx-auto w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mb-4">
@@ -121,6 +125,25 @@ export default function SignIn() {
                 {loading ? "Iniciando sesión..." : "Iniciar Sesión"}
               </Button>
             </form>
+
+            <div className="relative">
+              <div className="absolute inset-0 flex items-center">
+                <span className="w-full border-t" />
+              </div>
+              <div className="relative flex justify-center text-xs uppercase">
+                <span className="bg-card px-2 text-muted-foreground">o</span>
+              </div>
+            </div>
+
+            <Button
+              variant="outline"
+              className="w-full"
+              onClick={handleGoogleSignIn}
+              disabled={loading}
+            >
+              <Chrome className="mr-2 h-4 w-4" />
+              Continuar con Google
+            </Button>
 
             {/* Credenciales demo */}
             <div className="p-4 rounded-lg bg-muted/50 border border-gray-200">

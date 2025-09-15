@@ -2,8 +2,8 @@ import { NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import GoogleProvider from "next-auth/providers/google";
 
-// Importar el cliente de Prisma del backend
-import { prisma } from "../../../backend/src/lib/prisma";
+// Importar el cliente de Prisma local
+import { prisma } from "./prisma";
 
 export const authOptions: NextAuthOptions = {
   // adapter: PrismaAdapter(prisma) as any, // Commented out for custom trainer auth
