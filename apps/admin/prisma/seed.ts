@@ -1,102 +1,200 @@
-import { PrismaClient } from "@prisma/client";import { PrismaClient } from "@prisma/client";
+import { PrismaClient } from "@prisma/client";import { PrismaClient } from "@prisma/client";import { PrismaClient } from "@prisma/client";
+
+import { generatePublicToken } from "../src/lib/tokens";
 
 import { generatePublicToken } from "../src/lib/tokens";import { generatePublicToken } from "../src/lib/tokens";
 
-
-
-const prisma = new PrismaClient();const prisma = new PrismaClient();
-
-
-
-async function main() {async function main() {
-
-  console.log('🌱 Iniciando seeding...');  console.log('🌱 Iniciando seeding...');
+const prisma = new PrismaClient();
 
 
 
-  // Create a trainer for authentication  // Create a trainer for authentication
+async function main() {
 
-  const trainer = await prisma.trainer.upsert({  const trainer = await prisma.trainer.upsert({
-
-    where: { email: "trainer@example.com" },    where: { email: "trainer@example.com" },
-
-    update: {},    update: {},
-
-    create: {    create: {
-
-      email: "trainer@example.com",      email: "trainer@example.com",
-
-      name: "Carlos Rodríguez",      name: "Carlos Rodríguez",
-
-      bio: "Entrenador personal certificado con más de 5 años de experiencia",      bio: "Entrenador personal certificado con más de 5 años de experiencia",
-
-      specialties: JSON.stringify(["Fuerza", "Cardio", "Pérdida de peso", "Tonificación"]),      specialties: JSON.stringify(["Fuerza", "Cardio", "Pérdida de peso", "Tonificación"]),
-
-      certifications: JSON.stringify(["NSCA-CPT", "ACSM-CPT"]),      certifications: JSON.stringify(["NSCA-CPT", "ACSM-CPT"]),
-
-      phone: "+5491123456789",      phone: "+5491123456789",
-
-      whatsapp: "+5491123456789",      whatsapp: "+5491123456789",
-
-      instagram: "@carlosfitness"      instagram: "@carlosfitness"
-
-    },    },
-
-  });  });
+  console.log('🌱 Iniciando seeding...');const prisma = new PrismaClient();const prisma = new PrismaClient();
 
 
 
-  console.log("✅ Trainer creado:", trainer.name);  console.log("✅ Trainer creado:", trainer.name);
+  // Create a trainer for authentication
 
+  const trainer = await prisma.trainer.upsert({
 
+    where: { email: "trainer@example.com" },async function main() {async function main() {
 
-  // Create students
+    update: {},
 
-  const students = [
+    create: {  console.log('🌱 Iniciando seeding...');  console.log('🌱 Iniciando seeding...');
 
-    {  // Create students with Argentina phone numbers and ARS prices  // Create students with Argentina phone numbers and ARS prices
+      email: "trainer@example.com",
 
-      name: "María",
+      name: "Carlos Rodríguez",
 
-      lastName: "González",  const studentsData = [  const studentsData = [
+      bio: "Entrenador personal certificado con más de 5 años de experiencia",
 
-      email: "maria.gonzalez@email.com",
+      specialties: JSON.stringify(["Fuerza", "Cardio", "Pérdida de peso", "Tonificación"]),  // Create a trainer for authentication  // Create a trainer for authentication
 
-      phone: "+5491123456790",    {    {
+      certifications: JSON.stringify(["NSCA-CPT", "ACSM-CPT"]),
 
-      goals: JSON.stringify(["Pérdida de peso", "Tonificación"]),
+      phone: "+5491123456789",  const trainer = await prisma.trainer.upsert({  const trainer = await prisma.trainer.upsert({
 
-      monthlyFee: 25000.00,      name: "María",      name: "María",
+      whatsapp: "+5491123456789",
 
-      notes: "Objetivo: perder 8kg en 3 meses"
-
-    },      lastName: "González",      lastName: "González",
-
-    {
-
-      name: "Juan",      alias: "Mari",      alias: "Mari",
-
-      lastName: "Pérez",
-
-      email: "juan.perez@email.com",      phone: "+5491123456701",      phone: "+5491123456701",
-
-      phone: "+5491123456791",
-
-      goals: JSON.stringify(["Ganancia muscular", "Fuerza"]),      email: "maria.gonzalez@email.com",      email: "maria.gonzalez@email.com",
-
-      monthlyFee: 30000.00,
-
-      notes: "Experiencia previa en gimnasio"      monthlyFee: 45000.0, // $45,000 ARS      monthlyFee: 45000.0, // $45,000 ARS
+      instagram: "@carlosfitness"    where: { email: "trainer@example.com" },    where: { email: "trainer@example.com" },
 
     },
 
-    {      status: "ACTIVE",      status: "ACTIVE",
+  });    update: {},    update: {},
 
-      name: "Ana",
 
-      lastName: "Martínez",      goals: JSON.stringify(["Pérdida de peso", "Tonificación"]),      goals: JSON.stringify(["Pérdida de peso", "Tonificación"]),
 
-      email: "ana.martinez@email.com",
+  console.log("✅ Trainer creado:", trainer.name);    create: {    create: {
+
+
+
+  // Create students      email: "trainer@example.com",      email: "trainer@example.com",
+
+  const students = [
+
+    {      name: "Carlos Rodríguez",      name: "Carlos Rodríguez",
+
+      name: "María",
+
+      lastName: "González",      bio: "Entrenador personal certificado con más de 5 años de experiencia",      bio: "Entrenador personal certificado con más de 5 años de experiencia",
+
+      email: "maria.gonzalez@email.com",
+
+      phone: "+5491123456790",      specialties: JSON.stringify(["Fuerza", "Cardio", "Pérdida de peso", "Tonificación"]),      specialties: JSON.stringify(["Fuerza", "Cardio", "Pérdida de peso", "Tonificación"]),
+
+      goals: JSON.stringify(["Pérdida de peso", "Tonificación"]),
+
+      monthlyFee: 25000.00,      certifications: JSON.stringify(["NSCA-CPT", "ACSM-CPT"]),      certifications: JSON.stringify(["NSCA-CPT", "ACSM-CPT"]),
+
+      notes: "Objetivo: perder 8kg en 3 meses"
+
+    }      phone: "+5491123456789",      phone: "+5491123456789",
+
+  ];
+
+      whatsapp: "+5491123456789",      whatsapp: "+5491123456789",
+
+  const createdStudents = [];
+
+  for (const studentData of students) {      instagram: "@carlosfitness"      instagram: "@carlosfitness"
+
+    const student = await prisma.student.create({
+
+      data: {    },    },
+
+        ...studentData,
+
+        trainerId: trainer.id,  });  });
+
+      },
+
+    });
+
+    createdStudents.push(student);
+
+    console.log("✅ Estudiante creado:", student.name, student.lastName);  console.log("✅ Trainer creado:", trainer.name);  console.log("✅ Trainer creado:", trainer.name);
+
+  }
+
+
+
+  // Create plans with public tokens
+
+  const plansData = [  // Create students
+
+    {
+
+      name: "Plan Fuerza - María",  const students = [
+
+      description: "Plan personalizado de entrenamiento enfocado en fuerza y tonificación muscular",
+
+      price: 25000.00,    {  // Create students with Argentina phone numbers and ARS prices  // Create students with Argentina phone numbers and ARS prices
+
+      duration: "4 semanas",
+
+      features: JSON.stringify(["Rutinas personalizadas", "Seguimiento semanal", "Ajustes según progreso"]),      name: "María",
+
+      planType: "PERSONAL" as const,
+
+      difficultyLevel: "BEGINNER" as const,      lastName: "González",  const studentsData = [  const studentsData = [
+
+      categoryTags: JSON.stringify(["Fuerza", "Tonificación", "Principiante"]),
+
+      studentId: createdStudents[0].id,      email: "maria.gonzalez@email.com",
+
+      isActive: true,
+
+      publicToken: generatePublicToken()      phone: "+5491123456790",    {    {
+
+    }
+
+  ];      goals: JSON.stringify(["Pérdida de peso", "Tonificación"]),
+
+
+
+  const createdPlans = [];      monthlyFee: 25000.00,      name: "María",      name: "María",
+
+  for (const planData of plansData) {
+
+    const plan = await prisma.plan.create({      notes: "Objetivo: perder 8kg en 3 meses"
+
+      data: {
+
+        ...planData,    },      lastName: "González",      lastName: "González",
+
+        trainerId: trainer.id,
+
+      },    {
+
+    });
+
+    createdPlans.push(plan);      name: "Juan",      alias: "Mari",      alias: "Mari",
+
+    console.log("✅ Plan creado:", plan.name, "con token público:", plan.publicToken);
+
+  }      lastName: "Pérez",
+
+
+
+  console.log("🎉 Seeding completado exitosamente!");      email: "juan.perez@email.com",      phone: "+5491123456701",      phone: "+5491123456701",
+
+  console.log("\n📋 Datos creados:");
+
+  console.log(`- 1 Entrenador: ${trainer.name}`);      phone: "+5491123456791",
+
+  console.log(`- ${createdStudents.length} Estudiantes`);
+
+  console.log(`- ${createdPlans.length} Planes con tokens públicos`);      goals: JSON.stringify(["Ganancia muscular", "Fuerza"]),      email: "maria.gonzalez@email.com",      email: "maria.gonzalez@email.com",
+
+  console.log("\n🔗 Enlaces públicos de ejemplo:");
+
+  createdPlans.forEach(plan => {      monthlyFee: 30000.00,
+
+    console.log(`${plan.name}: http://localhost:3000/p/${plan.publicToken}`);
+
+  });      notes: "Experiencia previa en gimnasio"      monthlyFee: 45000.0, // $45,000 ARS      monthlyFee: 45000.0, // $45,000 ARS
+
+}
+
+    },
+
+main()
+
+  .catch((e) => {    {      status: "ACTIVE",      status: "ACTIVE",
+
+    console.error(e);
+
+    process.exit(1);      name: "Ana",
+
+  })
+
+  .finally(async () => {      lastName: "Martínez",      goals: JSON.stringify(["Pérdida de peso", "Tonificación"]),      goals: JSON.stringify(["Pérdida de peso", "Tonificación"]),
+
+    await prisma.$disconnect();
+
+  });      email: "ana.martinez@email.com",
 
       phone: "+5491123456792",      notes: "Principiante, disponible martes y jueves"      notes: "Principiante, disponible martes y jueves"
 

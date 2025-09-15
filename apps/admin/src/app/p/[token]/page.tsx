@@ -1,25 +1,8 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { ArrowLeft, ArrowRight, Calendar, CheckCircle, Copy, Dumbbell, ExternalLink, MessageCircle, PlayCircle, RotateCcw, Star, Target, Zap } from "lucide-react";
 import { useParams } from "next/navigation";
-import {
-  Calendar,
-  Clock,
-  Copy,
-  Share2,
-  MessageCircle,
-  QrCode,
-  CheckCircle,
-  Target,
-  Dumbbell,
-  RotateCcw,
-  PlayCircle,
-  Zap,
-  Star,
-  ArrowLeft,
-  ArrowRight,
-  ExternalLink
-} from "lucide-react";
+import { useEffect, useState } from "react";
 
 interface PlanItem {
   id: string;
@@ -33,10 +16,18 @@ interface PlanItem {
 
 interface PlanBlock {
   id: string;
-  blockType: 'WARMUP' | 'CIRCUIT1' | 'CIRCUIT2' | 'CIRCUIT3' | 'EXTRA';
+  blockType: "WARMUP" | "CIRCUIT1" | "CIRCUIT2" | "CIRCUIT3" | "EXTRA";
   name: string;
   description?: string;
   items: PlanItem[];
+}
+
+interface PlanProgress {
+  id: string;
+  completed: boolean;
+  completedAt?: string;
+  rating?: number;
+  notes?: string;
 }
 
 interface PlanDay {
@@ -46,6 +37,8 @@ interface PlanDay {
   description?: string;
   blocks: PlanBlock[];
   completed?: boolean;
+  completedAt?: string;
+  progress?: PlanProgress;
 }
 
 interface Student {
@@ -75,47 +68,48 @@ interface Plan {
 }
 
 const BLOCK_TYPES = {
-  'WARMUP': { 
-    label: 'Precalentamiento', 
-    color: 'bg-green-50 border-green-200',
-    textColor: 'text-green-800',
-    icon: RotateCcw
+  WARMUP: {
+    label: "Precalentamiento",
+    color: "bg-green-50 border-green-200",
+    textColor: "text-green-800",
+    icon: RotateCcw,
   },
-  'CIRCUIT1': { 
-    label: 'Circuito 1', 
-    color: 'bg-blue-50 border-blue-200',
-    textColor: 'text-blue-800',
-    icon: PlayCircle
+  CIRCUIT1: {
+    label: "Circuito 1",
+    color: "bg-blue-50 border-blue-200",
+    textColor: "text-blue-800",
+    icon: PlayCircle,
   },
-  'CIRCUIT2': { 
-    label: 'Circuito 2', 
-    color: 'bg-purple-50 border-purple-200',
-    textColor: 'text-purple-800',
-    icon: Zap
+  CIRCUIT2: {
+    label: "Circuito 2",
+    color: "bg-purple-50 border-purple-200",
+    textColor: "text-purple-800",
+    icon: Zap,
   },
-  'CIRCUIT3': { 
-    label: 'Circuito 3', 
-    color: 'bg-orange-50 border-orange-200',
-    textColor: 'text-orange-800',
-    icon: Target
+  CIRCUIT3: {
+    label: "Circuito 3",
+    color: "bg-orange-50 border-orange-200",
+    textColor: "text-orange-800",
+    icon: Target,
   },
-  'EXTRA': { 
-    label: 'Extra', 
-    color: 'bg-gray-50 border-gray-200',
-    textColor: 'text-gray-800',
-    icon: Star
-  }
+  EXTRA: {
+    label: "Extra",
+    color: "bg-gray-50 border-gray-200",
+    textColor: "text-gray-800",
+    icon: Star,
+  },
 };
 
 export default function PublicPlanPage() {
   const params = useParams();
   const token = params.token as string;
-  
+
   const [plan, setPlan] = useState<Plan | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [selectedDay, setSelectedDay] = useState(0);
   const [showCopySuccess, setShowCopySuccess] = useState(false);
+  const [updatingProgress, setUpdatingProgress] = useState<string | null>(null);
 
   useEffect(() => {
     if (token) {
@@ -127,7 +121,7 @@ export default function PublicPlanPage() {
     try {
       setLoading(true);
       const response = await fetch(`/api/public/plans/${token}`);
-      
+
       if (!response.ok) {
         if (response.status === 404) {
           setError("Plan no encontrado o el enlace ha expirado");
@@ -136,7 +130,7 @@ export default function PublicPlanPage() {
         }
         return;
       }
-      
+
       const data = await response.json();
       setPlan(data);
     } catch (error) {
@@ -159,9 +153,29 @@ export default function PublicPlanPage() {
 
   const openWhatsApp = () => {
     if (plan?.trainer?.whatsapp) {
-      const message = `Hola ${plan.trainer.name}! Tengo una consulta sobre mi plan de entrenamiento: ${plan.name}`;
-      const url = `https://wa.me/${plan.trainer.whatsapp.replace(/[^0-9]/g, '')}?text=${encodeURIComponent(message)}`;
-      window.open(url, '_blank');
+      const currentDayProgress = progress[plan.planDays[selectedDay]?.id];
+      const completedDays = Object.values(progress).filter((p) => p.completed).length;
+      const totalDays = plan.planDays.length;
+
+      let message = `Hola ${plan.trainer.name}! 👋\n\n`;
+      message += `Te escribo sobre mi plan de entrenamiento: *${plan.name}*\n\n`;
+      message += `📊 Mi progreso actual:\n`;
+      message += `✅ Días completados: ${completedDays}/${totalDays}\n`;
+
+      if (currentDayProgress?.completed) {
+        message += `🎯 Acabo de completar: ${plan.planDays[selectedDay]?.name}\n`;
+        if (currentDayProgress.rating) {
+          message += `⭐ Mi calificación: ${currentDayProgress.rating}/5\n`;
+        }
+        if (currentDayProgress.notes) {
+          message += `📝 Mis notas: ${currentDayProgress.notes}\n`;
+        }
+      }
+
+      message += `\n¿Podrías darme algunos consejos? 💪`;
+
+      const url = `https://wa.me/${plan.trainer.whatsapp.replace(/[^0-9]/g, "")}?text=${encodeURIComponent(message)}`;
+      window.open(url, "_blank");
     }
   };
 
@@ -170,8 +184,58 @@ export default function PublicPlanPage() {
     copyToClipboard(url);
   };
 
+  const markDayCompleted = async (dayId: string, completed: boolean) => {
+    if (!plan) return;
+
+    setUpdatingProgress(dayId);
+
+    try {
+      const response = await fetch(`/api/public/plans/${token}/progress`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          dayId,
+          completed,
+        }),
+      });
+
+      if (response.ok) {
+        // Actualizar el estado local
+        setPlan((prevPlan) => {
+          if (!prevPlan) return prevPlan;
+
+          return {
+            ...prevPlan,
+            planDays: prevPlan.planDays.map((day) =>
+              day.id === dayId
+                ? {
+                    ...day,
+                    completed,
+                    completedAt: completed ? new Date().toISOString() : undefined,
+                    progress: {
+                      id: day.progress?.id || "temp",
+                      completed,
+                      completedAt: completed ? new Date().toISOString() : undefined,
+                    },
+                  }
+                : day
+            ),
+          };
+        });
+      } else {
+        console.error("Failed to update progress");
+      }
+    } catch (error) {
+      console.error("Error updating progress:", error);
+    } finally {
+      setUpdatingProgress(null);
+    }
+  };
+
   const formatDuration = (seconds?: number) => {
-    if (!seconds) return '';
+    if (!seconds) return "";
     const minutes = Math.floor(seconds / 60);
     return `${minutes} min`;
   };
@@ -199,16 +263,17 @@ export default function PublicPlanPage() {
         <div className="text-center max-w-md">
           <div className="text-red-500 mb-4">
             <svg className="w-16 h-16 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.732-.833-2.5 0L4.232 15.5c-.77.833.192 2.5 1.732 2.5z" />
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.732-.833-2.5 0L4.232 15.5c-.77.833.192 2.5 1.732 2.5z"
+              />
             </svg>
           </div>
           <h1 className="text-xl font-bold text-gray-900 mb-2">Plan no encontrado</h1>
-          <p className="text-gray-600 mb-4">
-            {error || "El enlace que intentas acceder no es válido o ha expirado."}
-          </p>
-          <p className="text-sm text-gray-500">
-            Si crees que esto es un error, contacta a tu entrenador.
-          </p>
+          <p className="text-gray-600 mb-4">{error || "El enlace que intentas acceder no es válido o ha expirado."}</p>
+          <p className="text-sm text-gray-500">Si crees que esto es un error, contacta a tu entrenador.</p>
         </div>
       </div>
     );
@@ -240,21 +305,19 @@ export default function PublicPlanPage() {
                 </span>
               </div>
             </div>
-            
+
             <div className="flex gap-2">
               <button
                 onClick={shareUrl}
-                className="flex items-center px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500"
-              >
+                className="flex items-center px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500">
                 <Copy className="w-4 h-4 mr-2" />
                 {showCopySuccess ? "¡Copiado!" : "Copiar enlace"}
               </button>
-              
+
               {plan.trainer.whatsapp && (
                 <button
                   onClick={openWhatsApp}
-                  className="flex items-center px-3 py-2 text-sm font-medium text-white bg-green-600 border border-transparent rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500"
-                >
+                  className="flex items-center px-3 py-2 text-sm font-medium text-white bg-green-600 border border-transparent rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500">
                   <MessageCircle className="w-4 h-4 mr-2" />
                   WhatsApp
                 </button>
@@ -271,29 +334,27 @@ export default function PublicPlanPage() {
             <div className="bg-white rounded-lg shadow-sm border p-4">
               <h3 className="font-semibold text-gray-900 mb-4">Días de Entrenamiento</h3>
               <div className="space-y-2">
-                {plan.planDays.map((day, index) => (
-                  <button
-                    key={day.id}
-                    onClick={() => setSelectedDay(index)}
-                    className={`w-full text-left p-3 rounded-lg border transition-colors ${
-                      selectedDay === index 
-                        ? 'bg-blue-50 border-blue-200 text-blue-900' 
-                        : 'bg-gray-50 border-gray-200 hover:bg-gray-100'
-                    }`}
-                  >
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <div className="font-medium text-sm">{day.name}</div>
-                        <div className="text-xs text-gray-600">
-                          {day.blocks.length} bloques
+                {plan.planDays.map((day, index) => {
+                  const dayProgress = progress[day.id];
+                  const isCompleted = dayProgress?.completed || false;
+
+                  return (
+                    <button
+                      key={day.id}
+                      onClick={() => setSelectedDay(index)}
+                      className={`w-full text-left p-3 rounded-lg border transition-colors ${
+                        selectedDay === index ? "bg-blue-50 border-blue-200 text-blue-900" : "bg-gray-50 border-gray-200 hover:bg-gray-100"
+                      }`}>
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <div className="font-medium text-sm">{day.name}</div>
+                          <div className="text-xs text-gray-600">{day.blocks.length} bloques</div>
                         </div>
+                        {isCompleted && <CheckCircle className="w-4 h-4 text-green-600" />}
                       </div>
-                      {day.completed && (
-                        <CheckCircle className="w-4 h-4 text-green-600" />
-                      )}
-                    </div>
-                  </button>
-                ))}
+                    </button>
+                  );
+                })}
               </div>
             </div>
 
@@ -303,21 +364,17 @@ export default function PublicPlanPage() {
               <div className="space-y-2">
                 <p className="font-medium">{plan.trainer.name}</p>
                 {plan.trainer.whatsapp && (
-                  <button
-                    onClick={openWhatsApp}
-                    className="flex items-center text-sm text-green-600 hover:text-green-700"
-                  >
+                  <button onClick={openWhatsApp} className="flex items-center text-sm text-green-600 hover:text-green-700">
                     <MessageCircle className="w-4 h-4 mr-2" />
                     Enviar mensaje
                   </button>
                 )}
                 {plan.trainer.instagram && (
                   <a
-                    href={`https://instagram.com/${plan.trainer.instagram.replace('@', '')}`}
+                    href={`https://instagram.com/${plan.trainer.instagram.replace("@", "")}`}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex items-center text-sm text-purple-600 hover:text-purple-700"
-                  >
+                    className="flex items-center text-sm text-purple-600 hover:text-purple-700">
                     <ExternalLink className="w-4 h-4 mr-2" />
                     {plan.trainer.instagram}
                   </a>
@@ -335,26 +392,40 @@ export default function PublicPlanPage() {
                   <div className="flex items-center justify-between mb-4">
                     <div>
                       <h2 className="text-xl font-bold text-gray-900">{currentDay.name}</h2>
-                      {currentDay.description && (
-                        <p className="text-gray-600 mt-1">{currentDay.description}</p>
-                      )}
+                      {currentDay.description && <p className="text-gray-600 mt-1">{currentDay.description}</p>}
                     </div>
                     <div className="flex gap-2">
                       <button
                         onClick={() => setSelectedDay(Math.max(0, selectedDay - 1))}
                         disabled={selectedDay === 0}
-                        className="p-2 text-gray-400 hover:text-gray-600 disabled:opacity-50 disabled:cursor-not-allowed"
-                      >
+                        className="p-2 text-gray-400 hover:text-gray-600 disabled:opacity-50 disabled:cursor-not-allowed">
                         <ArrowLeft className="w-5 h-5" />
                       </button>
                       <button
                         onClick={() => setSelectedDay(Math.min(plan.planDays.length - 1, selectedDay + 1))}
                         disabled={selectedDay === plan.planDays.length - 1}
-                        className="p-2 text-gray-400 hover:text-gray-600 disabled:opacity-50 disabled:cursor-not-allowed"
-                      >
+                        className="p-2 text-gray-400 hover:text-gray-600 disabled:opacity-50 disabled:cursor-not-allowed">
                         <ArrowRight className="w-5 h-5" />
                       </button>
                     </div>
+                  </div>
+
+                  {/* Day Completion Section */}
+                  <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                    <div className="flex items-center gap-3">
+                      {progress[currentDay.id]?.completed || false ? <CheckCircle className="w-5 h-5 text-green-600" /> : <div className="w-5 h-5 border-2 border-gray-300 rounded-full"></div>}
+                      <span className={`font-medium ${progress[currentDay.id]?.completed || false ? "text-green-700" : "text-gray-700"}`}>
+                        {progress[currentDay.id]?.completed || false ? "Día Completado" : "Marcar día como completado"}
+                      </span>
+                    </div>
+                    <button
+                      onClick={() => markDayCompleted(currentDay.id)}
+                      disabled={updatingProgress === currentDay.id || progress[currentDay.id]?.completed || false}
+                      className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                        progress[currentDay.id]?.completed || false ? "bg-green-100 text-green-700 cursor-not-allowed" : "bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-50"
+                      }`}>
+                      {updatingProgress === currentDay.id ? "Guardando..." : progress[currentDay.id]?.completed || false ? "Completado" : "Completar Día"}
+                    </button>
                   </div>
                 </div>
 
@@ -362,21 +433,17 @@ export default function PublicPlanPage() {
                 {currentDay.blocks.map((block) => {
                   const blockConfig = getBlockConfig(block.blockType);
                   const IconComponent = blockConfig.icon;
-                  
+
                   return (
                     <div key={block.id} className={`bg-white rounded-lg shadow-sm border-2 ${blockConfig.color}`}>
                       <div className="p-4 border-b border-gray-200">
                         <div className="flex items-center gap-3">
                           <IconComponent className={`w-5 h-5 ${blockConfig.textColor}`} />
-                          <h3 className={`font-semibold ${blockConfig.textColor}`}>
-                            {block.name}
-                          </h3>
+                          <h3 className={`font-semibold ${blockConfig.textColor}`}>{block.name}</h3>
                         </div>
-                        {block.description && (
-                          <p className="text-gray-600 mt-1 text-sm">{block.description}</p>
-                        )}
+                        {block.description && <p className="text-gray-600 mt-1 text-sm">{block.description}</p>}
                       </div>
-                      
+
                       <div className="p-4">
                         <div className="space-y-4">
                           {block.items.map((item, index) => (
@@ -385,7 +452,7 @@ export default function PublicPlanPage() {
                                 <h4 className="font-medium text-gray-900">{item.name}</h4>
                                 <span className="text-sm text-gray-500">#{index + 1}</span>
                               </div>
-                              
+
                               <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 text-sm">
                                 {item.sets && (
                                   <div>
@@ -412,7 +479,7 @@ export default function PublicPlanPage() {
                                   </div>
                                 )}
                               </div>
-                              
+
                               {item.notes && (
                                 <div className="mt-3 p-3 bg-blue-50 rounded border-l-4 border-blue-200">
                                   <p className="text-sm text-blue-800">
@@ -432,9 +499,7 @@ export default function PublicPlanPage() {
               <div className="bg-white rounded-lg shadow-sm border p-12 text-center">
                 <Calendar className="w-12 h-12 text-gray-400 mx-auto mb-4" />
                 <h3 className="text-lg font-medium text-gray-900 mb-2">Selecciona un día</h3>
-                <p className="text-gray-600">
-                  Elige un día de entrenamiento para ver los ejercicios
-                </p>
+                <p className="text-gray-600">Elige un día de entrenamiento para ver los ejercicios</p>
               </div>
             )}
           </div>

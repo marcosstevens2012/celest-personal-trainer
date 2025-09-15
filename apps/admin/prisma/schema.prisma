@@ -57,6 +57,7 @@ model Student {
   plans    Plan[]
   payments Payment[]
   notes_records StudentNote[]
+  planDayProgress PlanDayProgress[]
 
   @@map("students")
 }
@@ -88,6 +89,7 @@ model Plan {
   payments Payment[]
   planNotes PlanNote[]
   weeklyChecks WeeklyCheck[]
+  planDayProgress PlanDayProgress[]
 
   @@map("plans")
 }
@@ -98,11 +100,14 @@ model PlanDay {
   dayNumber   Int
   name        String
   description String?
+  completed   Boolean     @default(false) // Track if day is completed
+  completedAt DateTime?   // When it was completed
   createdAt   DateTime    @default(now())
   updatedAt   DateTime    @updatedAt
 
   plan   Plan        @relation(fields: [planId], references: [id], onDelete: Cascade)
   blocks PlanBlock[]
+  progress PlanDayProgress[]
 
   @@unique([planId, dayNumber])
   @@map("plan_days")
@@ -219,4 +224,25 @@ model WeeklyCheck {
 
   @@unique([planId, weekNumber])
   @@map("weekly_checks")
+}
+
+// Modelo para progreso detallado de días del plan
+model PlanDayProgress {
+  id        String   @id @default(cuid())
+  planDayId String
+  planId    String
+  studentId String
+  completed Boolean  @default(false)
+  completedAt DateTime?
+  notes     String?  // Notas del estudiante sobre el día
+  rating    Int?     // Rating del 1-5 sobre dificultad
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  planDay PlanDay @relation(fields: [planDayId], references: [id], onDelete: Cascade)
+  plan    Plan    @relation(fields: [planId], references: [id], onDelete: Cascade)
+  student Student @relation(fields: [studentId], references: [id], onDelete: Cascade)
+
+  @@unique([planDayId, studentId])
+  @@map("plan_day_progress")
 }

@@ -11,14 +11,8 @@ const createPlanSchema = z.object({
   price: z.number().positive("Price must be positive"),
   duration: z.string().optional(),
   features: z.array(z.string()),
-  planType: z
-    .enum(["PERSONAL", "GROUP", "ONLINE"])
-    .optional()
-    .default("PERSONAL"),
-  difficultyLevel: z
-    .enum(["BEGINNER", "INTERMEDIATE", "ADVANCED"])
-    .optional()
-    .default("BEGINNER"),
+  planType: z.enum(["PERSONAL", "GROUP", "ONLINE"]).optional().default("PERSONAL"),
+  difficultyLevel: z.enum(["BEGINNER", "INTERMEDIATE", "ADVANCED"]).optional().default("BEGINNER"),
   categoryTags: z.array(z.string()).optional().default([]),
   notes: z.string().optional(),
 });
@@ -37,10 +31,7 @@ export async function GET(request: NextRequest) {
     const difficultyLevel = searchParams.get("difficultyLevel");
 
     if (!trainerId) {
-      return NextResponse.json(
-        { success: false, error: "Trainer ID is required" },
-        { status: 400 }
-      );
+      return NextResponse.json({ success: false, error: "Trainer ID is required" }, { status: 400 });
     }
 
     const skip = (page - 1) * limit;
@@ -61,10 +52,7 @@ export async function GET(request: NextRequest) {
     }
 
     if (search) {
-      where.OR = [
-        { name: { contains: search, mode: "insensitive" } },
-        { description: { contains: search, mode: "insensitive" } },
-      ];
+      where.OR = [{ name: { contains: search, mode: "insensitive" } }, { description: { contains: search, mode: "insensitive" } }];
     }
 
     // If studentId is provided, filter plans assigned to that student
@@ -121,10 +109,7 @@ export async function GET(request: NextRequest) {
     });
   } catch (error) {
     console.error("Error fetching plans:", error);
-    return NextResponse.json(
-      { success: false, error: "Internal server error" },
-      { status: 500 }
-    );
+    return NextResponse.json({ success: false, error: "Internal server error" }, { status: 500 });
   }
 }
 
@@ -154,10 +139,7 @@ export async function POST(request: NextRequest) {
     });
 
     if (!trainer) {
-      return NextResponse.json(
-        { success: false, error: "Trainer not found" },
-        { status: 404 }
-      );
+      return NextResponse.json({ success: false, error: "Trainer not found" }, { status: 404 });
     }
 
     const plan = await prisma.plan.create({
@@ -208,10 +190,7 @@ export async function POST(request: NextRequest) {
     });
   } catch (error) {
     console.error("Error creating plan:", error);
-    return NextResponse.json(
-      { success: false, error: "Internal server error" },
-      { status: 500 }
-    );
+    return NextResponse.json({ success: false, error: "Internal server error" }, { status: 500 });
   }
 }
 
@@ -222,18 +201,14 @@ export async function PUT(request: NextRequest) {
     const planId = searchParams.get("id");
 
     if (!planId) {
-      return NextResponse.json(
-        { success: false, error: "Plan ID is required" },
-        { status: 400 }
-      );
+      return NextResponse.json({ success: false, error: "Plan ID is required" }, { status: 400 });
     }
 
     const body = await request.json();
 
     const updateData: Record<string, unknown> = {};
     if (body.name) updateData.name = body.name;
-    if (body.description !== undefined)
-      updateData.description = body.description;
+    if (body.description !== undefined) updateData.description = body.description;
     if (body.price) updateData.price = body.price;
     if (body.duration) updateData.duration = body.duration;
     if (body.features) updateData.features = body.features;
@@ -280,10 +255,7 @@ export async function PUT(request: NextRequest) {
     });
   } catch (error) {
     console.error("Error updating plan:", error);
-    return NextResponse.json(
-      { success: false, error: "Internal server error" },
-      { status: 500 }
-    );
+    return NextResponse.json({ success: false, error: "Internal server error" }, { status: 500 });
   }
 }
 
@@ -294,10 +266,7 @@ export async function DELETE(request: NextRequest) {
     const planId = searchParams.get("id");
 
     if (!planId) {
-      return NextResponse.json(
-        { success: false, error: "Plan ID is required" },
-        { status: 400 }
-      );
+      return NextResponse.json({ success: false, error: "Plan ID is required" }, { status: 400 });
     }
 
     const plan = await prisma.plan.update({
@@ -312,9 +281,6 @@ export async function DELETE(request: NextRequest) {
     });
   } catch (error) {
     console.error("Error deleting plan:", error);
-    return NextResponse.json(
-      { success: false, error: "Internal server error" },
-      { status: 500 }
-    );
+    return NextResponse.json({ success: false, error: "Internal server error" }, { status: 500 });
   }
 }

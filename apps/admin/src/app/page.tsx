@@ -1,19 +1,11 @@
 "use client";
 
 import { useAuth } from "@/components/auth-provider";
-import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import {
-  AlertCircle,
-  Calendar,
-  DollarSign,
-  FileText,
-  TrendingUp,
-  Users,
-  LogOut,
-} from "lucide-react";
+import { AlertCircle, Calendar, DollarSign, FileText, LogOut, TrendingUp, Users } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 
 interface KPIData {
   totalStudents: number;
@@ -114,9 +106,9 @@ export default function Dashboard() {
   };
 
   const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat("es-ES", {
+    return new Intl.NumberFormat("es-AR", {
       style: "currency",
-      currency: "EUR",
+      currency: "ARS",
     }).format(amount);
   };
 
@@ -200,12 +192,8 @@ export default function Dashboard() {
         {/* Header */}
         <div className="flex justify-between items-center mb-8">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">
-              ¡Bienvenido, {user?.name}!
-            </h1>
-            <p className="mt-1 text-lg text-gray-600">
-              Resumen de tu actividad como entrenador personal
-            </p>
+            <h1 className="text-3xl font-bold text-gray-900">¡Bienvenido, {user?.name}!</h1>
+            <p className="mt-1 text-lg text-gray-600">Resumen de tu actividad como entrenador personal</p>
           </div>
           <Button onClick={handleLogout} variant="outline" className="flex items-center gap-2">
             <LogOut className="h-4 w-4" />
@@ -226,12 +214,8 @@ export default function Dashboard() {
                         <Icon className={`h-6 w-6 ${kpi.color}`} />
                       </div>
                       <div className="ml-4 flex-1">
-                        <p className="text-sm font-medium text-gray-600">
-                          {kpi.title}
-                        </p>
-                        <p className="text-2xl font-semibold text-gray-900">
-                          {kpi.value}
-                        </p>
+                        <p className="text-sm font-medium text-gray-600">{kpi.title}</p>
+                        <p className="text-2xl font-semibold text-gray-900">{kpi.value}</p>
                       </div>
                     </div>
                     <div className="mt-4">
@@ -281,12 +265,8 @@ export default function Dashboard() {
                           <ActivityIcon className={`h-5 w-5 ${iconColor}`} />
                         </div>
                         <div className="flex-1 min-w-0">
-                          <p className="text-sm text-gray-900">
-                            {activity.message}
-                          </p>
-                          <p className="text-xs text-gray-500">
-                            {formatDate(activity.date)}
-                          </p>
+                          <p className="text-sm text-gray-900">{activity.message}</p>
+                          <p className="text-xs text-gray-500">{formatDate(activity.date)}</p>
                         </div>
                       </div>
                     );
@@ -302,17 +282,19 @@ export default function Dashboard() {
               </CardHeader>
               <CardContent>
                 <div className="space-y-3">
-                  <button className="w-full flex items-center justify-between p-3 text-left border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
+                  <button
+                    onClick={() => router.push("/students")}
+                    className="w-full flex items-center justify-between p-3 text-left border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
                     <div className="flex items-center">
                       <Users className="h-5 w-5 text-blue-500 mr-3" />
-                      <span className="text-sm font-medium">
-                        Agregar Estudiante
-                      </span>
+                      <span className="text-sm font-medium">Agregar Estudiante</span>
                     </div>
                     <span className="text-xs text-gray-500">→</span>
                   </button>
 
-                  <button className="w-full flex items-center justify-between p-3 text-left border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
+                  <button
+                    onClick={() => router.push("/plans/new")}
+                    className="w-full flex items-center justify-between p-3 text-left border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
                     <div className="flex items-center">
                       <FileText className="h-5 w-5 text-green-500 mr-3" />
                       <span className="text-sm font-medium">Crear Plan</span>
@@ -320,7 +302,9 @@ export default function Dashboard() {
                     <span className="text-xs text-gray-500">→</span>
                   </button>
 
-                  <button className="w-full flex items-center justify-between p-3 text-left border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
+                  <button
+                    onClick={() => router.push("/payments")}
+                    className="w-full flex items-center justify-between p-3 text-left border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
                     <div className="flex items-center">
                       <DollarSign className="h-5 w-5 text-emerald-500 mr-3" />
                       <span className="text-sm font-medium">Registrar Pago</span>
@@ -328,7 +312,9 @@ export default function Dashboard() {
                     <span className="text-xs text-gray-500">→</span>
                   </button>
 
-                  <button className="w-full flex items-center justify-between p-3 text-left border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
+                  <button
+                    onClick={() => router.push("/reports")}
+                    className="w-full flex items-center justify-between p-3 text-left border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
                     <div className="flex items-center">
                       <TrendingUp className="h-5 w-5 text-purple-500 mr-3" />
                       <span className="text-sm font-medium">Ver Reportes</span>
@@ -348,28 +334,16 @@ export default function Dashboard() {
             <CardContent>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <div className="text-center">
-                  <div className="text-3xl font-bold text-blue-600">
-                    {kpiData.activeStudents}
-                  </div>
-                  <div className="text-sm text-gray-600 mt-1">
-                    Estudiantes Activos
-                  </div>
+                  <div className="text-3xl font-bold text-blue-600">{kpiData.activeStudents}</div>
+                  <div className="text-sm text-gray-600 mt-1">Estudiantes Activos</div>
                 </div>
                 <div className="text-center">
-                  <div className="text-3xl font-bold text-green-600">
-                    {formatCurrency(kpiData.monthlyRevenue)}
-                  </div>
-                  <div className="text-sm text-gray-600 mt-1">
-                    Ingresos Generados
-                  </div>
+                  <div className="text-3xl font-bold text-green-600">{formatCurrency(kpiData.monthlyRevenue)}</div>
+                  <div className="text-sm text-gray-600 mt-1">Ingresos Generados</div>
                 </div>
                 <div className="text-center">
-                  <div className="text-3xl font-bold text-purple-600">
-                    {Math.round(kpiData.monthlyRevenue / kpiData.activeStudents)}€
-                  </div>
-                  <div className="text-sm text-gray-600 mt-1">
-                    Ingreso Promedio por Estudiante
-                  </div>
+                  <div className="text-3xl font-bold text-purple-600">{formatCurrency(Math.round(kpiData.monthlyRevenue / kpiData.activeStudents))}</div>
+                  <div className="text-sm text-gray-600 mt-1">Ingreso Promedio por Estudiante</div>
                 </div>
               </div>
             </CardContent>

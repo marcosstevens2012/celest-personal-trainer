@@ -1,17 +1,11 @@
-import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { NextRequest, NextResponse } from "next/server";
 
-export async function GET(
-  request: NextRequest,
-  { params }: { params: { token: string } }
-) {
+export async function GET(request: NextRequest, { params }: { params: { token: string } }) {
   const { token } = params;
 
   if (!token) {
-    return NextResponse.json(
-      { error: "Token is required" },
-      { status: 400 }
-    );
+    return NextResponse.json({ error: "Token is required" }, { status: 400 });
   }
 
   try {
@@ -39,20 +33,29 @@ export async function GET(
         },
         planDays: {
           orderBy: {
-            dayNumber: 'asc',
+            dayNumber: "asc",
           },
           include: {
             blocks: {
               orderBy: {
-                createdAt: 'asc',
+                createdAt: "asc",
               },
               include: {
                 items: {
                   orderBy: {
-                    createdAt: 'asc',
+                    createdAt: "asc",
                   },
                 },
               },
+            },
+            progress: {
+              where: {
+                studentId: { not: null },
+              },
+              orderBy: {
+                createdAt: "desc",
+              },
+              take: 1,
             },
           },
         },
@@ -60,10 +63,7 @@ export async function GET(
     });
 
     if (!plan) {
-      return NextResponse.json(
-        { error: "Plan not found" },
-        { status: 404 }
-      );
+      return NextResponse.json({ error: "Plan not found" }, { status: 404 });
     }
 
     // Formatear la respuesta para el frontend
@@ -76,18 +76,20 @@ export async function GET(
       publicToken: plan.publicToken,
       student: plan.student,
       trainer: plan.trainer,
-      planDays: plan.planDays.map(day => ({
+      planDays: plan.planDays.map((day) => ({
         id: day.id,
         dayNumber: day.dayNumber,
         name: day.name,
         description: day.description,
         completed: day.completed || false,
-        blocks: day.blocks.map(block => ({
+        completedAt: day.completedAt,
+        progress: day.progress[0] || null, // Latest progress entry
+        blocks: day.blocks.map((block) => ({
           id: block.id,
           blockType: block.blockType,
           name: block.name,
           description: block.description,
-          items: block.items.map(item => ({
+          items: block.items.map((item) => ({
             id: item.id,
             name: item.name,
             sets: item.sets,
@@ -103,9 +105,6 @@ export async function GET(
     return NextResponse.json(formattedPlan);
   } catch (error) {
     console.error("Error fetching public plan:", error);
-    return NextResponse.json(
-      { error: "Internal server error" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }

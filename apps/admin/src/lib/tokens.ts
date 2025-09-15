@@ -1,14 +1,14 @@
-import crypto from 'crypto';
+import crypto from "crypto";
 
 /**
  * Generate a unique public token for plan sharing
  * Format: 8 chars random + timestamp + 4 chars random = ~20 chars
  */
 export function generatePublicToken(): string {
-  const randomPart1 = crypto.randomBytes(4).toString('hex'); // 8 chars
+  const randomPart1 = crypto.randomBytes(4).toString("hex"); // 8 chars
   const timestamp = Date.now().toString(36); // timestamp in base36
-  const randomPart2 = crypto.randomBytes(2).toString('hex'); // 4 chars
-  
+  const randomPart2 = crypto.randomBytes(2).toString("hex"); // 4 chars
+
   return `${randomPart1}${timestamp}${randomPart2}`;
 }
 
@@ -16,7 +16,7 @@ export function generatePublicToken(): string {
  * Generate a shorter token for QR codes (12 chars)
  */
 export function generateShortToken(): string {
-  return crypto.randomBytes(6).toString('hex');
+  return crypto.randomBytes(6).toString("hex");
 }
 
 /**
