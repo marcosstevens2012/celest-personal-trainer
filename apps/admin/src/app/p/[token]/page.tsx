@@ -1,6 +1,31 @@
 "use client";
 
-import { ArrowLeft, ArrowRight, Calendar, CheckCircle, Copy, Dumbbell, ExternalLink, MessageCircle, PlayCircle, RotateCcw, Star, Target, Zap } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Progress } from "@/components/ui/progress";
+import { Separator } from "@/components/ui/separator";
+import {
+  ArrowLeft,
+  ArrowRight,
+  Calendar,
+  CheckCircle,
+  Copy,
+  Dumbbell,
+  ExternalLink,
+  MessageCircle,
+  PlayCircle,
+  RotateCcw,
+  Star,
+  Target,
+  Zap,
+  User,
+  Clock,
+  Award,
+  Share2,
+  AlertCircle
+} from "lucide-react";
 import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
 
@@ -70,33 +95,38 @@ interface Plan {
 const BLOCK_TYPES = {
   WARMUP: {
     label: "Precalentamiento",
-    color: "bg-green-50 border-green-200",
-    textColor: "text-green-800",
+    variant: "secondary" as const,
     icon: RotateCcw,
+    color: "text-green-600",
+    bg: "bg-green-50",
   },
   CIRCUIT1: {
     label: "Circuito 1",
-    color: "bg-blue-50 border-blue-200",
-    textColor: "text-blue-800",
+    variant: "default" as const,
     icon: PlayCircle,
+    color: "text-blue-600",
+    bg: "bg-blue-50",
   },
   CIRCUIT2: {
     label: "Circuito 2",
-    color: "bg-purple-50 border-purple-200",
-    textColor: "text-purple-800",
+    variant: "outline" as const,
     icon: Zap,
+    color: "text-purple-600",
+    bg: "bg-purple-50",
   },
   CIRCUIT3: {
     label: "Circuito 3",
-    color: "bg-orange-50 border-orange-200",
-    textColor: "text-orange-800",
+    variant: "destructive" as const,
     icon: Target,
+    color: "text-orange-600",
+    bg: "bg-orange-50",
   },
   EXTRA: {
     label: "Extra",
-    color: "bg-gray-50 border-gray-200",
-    textColor: "text-gray-800",
+    variant: "outline" as const,
     icon: Star,
+    color: "text-gray-600",
+    bg: "bg-gray-50",
   },
 };
 
@@ -244,60 +274,156 @@ export default function PublicPlanPage() {
     return BLOCK_TYPES[blockType as keyof typeof BLOCK_TYPES] || BLOCK_TYPES.CIRCUIT1;
   };
 
+  const getCompletedDaysCount = () => {
+    return plan?.planDays.filter(day => day.completed).length || 0;
+  };
+
+  const getTotalDays = () => {
+    return plan?.planDays.length || 0;
+  };
+
+  const getProgressPercentage = () => {
+    const completed = getCompletedDaysCount();
+    const total = getTotalDays();
+    return total > 0 ? Math.round((completed / total) * 100) : 0;
+  };
+
   const currentDay = plan?.planDays[selectedDay];
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Cargando tu plan de entrenamiento...</p>
-        </div>
+      <div className="min-h-screen bg-background flex items-center justify-center p-4">
+        <Card className="w-full max-w-md">
+          <CardContent className="p-8">
+            <div className="flex flex-col items-center space-y-4 text-center">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+              <div className="space-y-2">
+                <h3 className="font-semibold">Cargando tu plan</h3>
+                <p className="text-sm text-muted-foreground">
+                  Preparando tu entrenamiento personalizado...
+                </p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
       </div>
     );
   }
 
   if (error || !plan) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
-        <div className="text-center max-w-md">
-          <div className="text-red-500 mb-4">
-            <svg className="w-16 h-16 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.732-.833-2.5 0L4.232 15.5c-.77.833.192 2.5 1.732 2.5z"
-              />
-            </svg>
-          </div>
-          <h1 className="text-xl font-bold text-gray-900 mb-2">Plan no encontrado</h1>
-          <p className="text-gray-600 mb-4">{error || "El enlace que intentas acceder no es válido o ha expirado."}</p>
-          <p className="text-sm text-gray-500">Si crees que esto es un error, contacta a tu entrenador.</p>
-        </div>
+      <div className="min-h-screen bg-background flex items-center justify-center p-4">
+        <Card className="w-full max-w-md">
+          <CardContent className="p-8">
+            <div className="flex flex-col items-center space-y-4 text-center">
+              <div className="p-3 rounded-full bg-destructive/10">
+                <AlertCircle className="h-8 w-8 text-destructive" />
+              </div>
+              <div className="space-y-2">
+                <h3 className="text-lg font-semibold">Plan no encontrado</h3>
+                <p className="text-sm text-muted-foreground">
+                  {error || "El enlace que intentas acceder no es válido o ha expirado."}
+                </p>
+                <p className="text-xs text-muted-foreground">
+                  Si crees que esto es un error, contacta a tu entrenador.
+                </p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-background">
       {/* Header */}
-      <div className="bg-white shadow-sm border-b">
-        <div className="max-w-4xl mx-auto px-4 py-6">
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-            <div>
-              <h1 className="text-2xl font-bold text-gray-900">{plan.name}</h1>
-              <p className="text-gray-600 mt-1">
-                Plan para {plan.student.name} {plan.student.lastName}
-              </p>
-              <div className="flex items-center gap-4 mt-2 text-sm text-gray-500">
-                <span className="flex items-center">
-                  <Calendar className="w-4 h-4 mr-1" />
+      <div className="border-b bg-card">
+        <div className="container mx-auto px-4 py-6">
+          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
+            <div className="space-y-2">
+              <div className="flex items-center gap-3">
+                <div className="p-2 rounded-lg bg-primary/10">
+                  <Dumbbell className="h-5 w-5 text-primary" />
+                </div>
+                <div>
+                  <h1 className="text-2xl font-bold tracking-tight">{plan.name}</h1>
+                  <p className="text-muted-foreground flex items-center gap-1">
+                    <User className="h-4 w-4" />
+                    Plan personalizado para {plan.student.name} {plan.student.lastName}
+                  </p>
+                </div>
+              </div>
+              
+              <div className="flex items-center gap-4 text-sm">
+                <Badge variant="outline" className="gap-1">
+                  <Calendar className="w-3 h-3" />
                   {plan.duration}
-                </span>
-                <span className="flex items-center">
-                  <Target className="w-4 h-4 mr-1" />
+                </Badge>
+                <Badge variant="outline" className="gap-1">
+                  <Target className="w-3 h-3" />
                   {plan.difficultyLevel}
+                </Badge>
+                <Badge variant="outline" className="gap-1">
+                  <Award className="w-3 h-3" />
+                  {plan.trainer.name}
+                </Badge>
+              </div>
+            </div>
+
+            <div className="flex flex-col sm:flex-row gap-3">
+              <Button
+                onClick={shareUrl}
+                variant="outline"
+                size="sm"
+                className="gap-2"
+              >
+                {showCopySuccess ? (
+                  <>
+                    <CheckCircle className="h-4 w-4 text-green-600" />
+                    ¡Copiado!
+                  </>
+                ) : (
+                  <>
+                    <Share2 className="h-4 w-4" />
+                    Compartir
+                  </>
+                )}
+              </Button>
+              
+              {plan.trainer?.whatsapp && (
+                <Button
+                  onClick={openWhatsApp}
+                  className="gap-2 bg-green-600 hover:bg-green-700"
+                >
+                  <MessageCircle className="h-4 w-4" />
+                  Contactar Entrenador
+                </Button>
+              )}
+            </div>
+          </div>
+
+          {/* Progress Overview */}
+          <div className="mt-6">
+            <Card>
+              <CardContent className="p-6">
+                <div className="flex items-center justify-between mb-4">
+                  <div>
+                    <h3 className="font-semibold">Tu Progreso</h3>
+                    <p className="text-sm text-muted-foreground">
+                      {getCompletedDaysCount()} de {getTotalDays()} días completados
+                    </p>
+                  </div>
+                  <Badge variant={getProgressPercentage() === 100 ? "default" : "secondary"}>
+                    {getProgressPercentage()}%
+                  </Badge>
+                </div>
+                <Progress value={getProgressPercentage()} className="h-2" />
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+      </div>
                 </span>
                 <span className="flex items-center">
                   <Dumbbell className="w-4 h-4 mr-1" />
@@ -327,141 +453,294 @@ export default function PublicPlanPage() {
         </div>
       </div>
 
-      <div className="max-w-4xl mx-auto px-4 py-6">
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-          {/* Days Navigation */}
-          <div className="lg:col-span-1">
-            <div className="bg-white rounded-lg shadow-sm border p-4">
-              <h3 className="font-semibold text-gray-900 mb-4">Días de Entrenamiento</h3>
-              <div className="space-y-2">
+      {/* Main Content */}
+      <div className="container mx-auto px-4 py-8">
+        <div className="grid grid-cols-1 xl:grid-cols-4 gap-8">
+          {/* Days Navigation Sidebar */}
+          <div className="xl:col-span-1 space-y-6">
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-lg flex items-center gap-2">
+                  <Calendar className="h-5 w-5" />
+                  Días de Entrenamiento
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-3">
                 {plan.planDays.map((day, index) => {
-                  const dayProgress = progress[day.id];
-                  const isCompleted = dayProgress?.completed || false;
+                  const isCompleted = day.completed || false;
+                  const isSelected = selectedDay === index;
 
                   return (
-                    <button
+                    <Button
                       key={day.id}
                       onClick={() => setSelectedDay(index)}
-                      className={`w-full text-left p-3 rounded-lg border transition-colors ${
-                        selectedDay === index ? "bg-blue-50 border-blue-200 text-blue-900" : "bg-gray-50 border-gray-200 hover:bg-gray-100"
-                      }`}>
-                      <div className="flex items-center justify-between">
-                        <div>
-                          <div className="font-medium text-sm">{day.name}</div>
-                          <div className="text-xs text-gray-600">{day.blocks.length} bloques</div>
+                      variant={isSelected ? "default" : "ghost"}
+                      className={`w-full justify-start h-auto p-3 ${
+                        isSelected ? "" : "hover:bg-muted"
+                      }`}
+                    >
+                      <div className="flex items-center justify-between w-full">
+                        <div className="text-left">
+                          <div className="font-medium text-sm">
+                            Día {index + 1}: {day.name}
+                          </div>
+                          <div className="text-xs opacity-75">
+                            {day.blocks.length} bloque{day.blocks.length !== 1 ? 's' : ''}
+                          </div>
                         </div>
-                        {isCompleted && <CheckCircle className="w-4 h-4 text-green-600" />}
+                        {isCompleted && (
+                          <CheckCircle className="h-4 w-4 text-green-600 ml-2" />
+                        )}
                       </div>
-                    </button>
+                    </Button>
                   );
                 })}
-              </div>
-            </div>
+              </CardContent>
+            </Card>
 
-            {/* Trainer Info */}
-            <div className="bg-white rounded-lg shadow-sm border p-4 mt-4">
-              <h3 className="font-semibold text-gray-900 mb-3">Tu Entrenador</h3>
-              <div className="space-y-2">
-                <p className="font-medium">{plan.trainer.name}</p>
-                {plan.trainer.whatsapp && (
-                  <button onClick={openWhatsApp} className="flex items-center text-sm text-green-600 hover:text-green-700">
-                    <MessageCircle className="w-4 h-4 mr-2" />
-                    Enviar mensaje
-                  </button>
-                )}
-                {plan.trainer.instagram && (
-                  <a
-                    href={`https://instagram.com/${plan.trainer.instagram.replace("@", "")}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex items-center text-sm text-purple-600 hover:text-purple-700">
-                    <ExternalLink className="w-4 h-4 mr-2" />
-                    {plan.trainer.instagram}
-                  </a>
-                )}
-              </div>
-            </div>
+            {/* Trainer Info Card */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-lg flex items-center gap-2">
+                  <Award className="h-5 w-5" />
+                  Tu Entrenador
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="flex items-center gap-3">
+                  <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center">
+                    <User className="h-6 w-6 text-primary" />
+                  </div>
+                  <div>
+                    <p className="font-medium">{plan.trainer.name}</p>
+                    <p className="text-sm text-muted-foreground">
+                      Entrenador Personal
+                    </p>
+                  </div>
+                </div>
+                
+                <Separator />
+                
+                <div className="space-y-2">
+                  {plan.trainer.whatsapp && (
+                    <Button
+                      onClick={openWhatsApp}
+                      variant="outline"
+                      size="sm"
+                      className="w-full justify-start gap-2 text-green-600 hover:text-green-700 border-green-200"
+                    >
+                      <MessageCircle className="h-4 w-4" />
+                      Enviar WhatsApp
+                    </Button>
+                  )}
+                  
+                  {plan.trainer.instagram && (
+                    <Button
+                      asChild
+                      variant="outline"
+                      size="sm"
+                      className="w-full justify-start gap-2"
+                    >
+                      <a
+                        href={`https://instagram.com/${plan.trainer.instagram.replace("@", "")}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        <ExternalLink className="h-4 w-4" />
+                        {plan.trainer.instagram}
+                      </a>
+                    </Button>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
           </div>
 
           {/* Plan Content */}
-          <div className="lg:col-span-3">
+          <div className="xl:col-span-3 space-y-6">
             {currentDay ? (
-              <div className="space-y-6">
+              <>
                 {/* Day Header */}
-                <div className="bg-white rounded-lg shadow-sm border p-6">
-                  <div className="flex items-center justify-between mb-4">
-                    <div>
-                      <h2 className="text-xl font-bold text-gray-900">{currentDay.name}</h2>
-                      {currentDay.description && <p className="text-gray-600 mt-1">{currentDay.description}</p>}
+                <Card>
+                  <CardContent className="p-6">
+                    <div className="flex items-center justify-between mb-4">
+                      <div className="space-y-1">
+                        <h2 className="text-2xl font-bold tracking-tight">
+                          Día {selectedDay + 1}: {currentDay.name}
+                        </h2>
+                        {currentDay.description && (
+                          <p className="text-muted-foreground">{currentDay.description}</p>
+                        )}
+                      </div>
+                      <div className="flex gap-2">
+                        <Button
+                          onClick={() => setSelectedDay(Math.max(0, selectedDay - 1))}
+                          disabled={selectedDay === 0}
+                          variant="outline"
+                          size="sm"
+                        >
+                          <ArrowLeft className="w-4 h-4" />
+                        </Button>
+                        <Button
+                          onClick={() => setSelectedDay(Math.min(plan.planDays.length - 1, selectedDay + 1))}
+                          disabled={selectedDay === plan.planDays.length - 1}
+                          variant="outline"
+                          size="sm"
+                        >
+                          <ArrowRight className="w-4 h-4" />
+                        </Button>
+                      </div>
                     </div>
-                    <div className="flex gap-2">
-                      <button
-                        onClick={() => setSelectedDay(Math.max(0, selectedDay - 1))}
-                        disabled={selectedDay === 0}
-                        className="p-2 text-gray-400 hover:text-gray-600 disabled:opacity-50 disabled:cursor-not-allowed">
-                        <ArrowLeft className="w-5 h-5" />
-                      </button>
-                      <button
-                        onClick={() => setSelectedDay(Math.min(plan.planDays.length - 1, selectedDay + 1))}
-                        disabled={selectedDay === plan.planDays.length - 1}
-                        className="p-2 text-gray-400 hover:text-gray-600 disabled:opacity-50 disabled:cursor-not-allowed">
-                        <ArrowRight className="w-5 h-5" />
-                      </button>
-                    </div>
-                  </div>
 
-                  {/* Day Completion Section */}
-                  <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
-                    <div className="flex items-center gap-3">
-                      {progress[currentDay.id]?.completed || false ? <CheckCircle className="w-5 h-5 text-green-600" /> : <div className="w-5 h-5 border-2 border-gray-300 rounded-full"></div>}
-                      <span className={`font-medium ${progress[currentDay.id]?.completed || false ? "text-green-700" : "text-gray-700"}`}>
-                        {progress[currentDay.id]?.completed || false ? "Día Completado" : "Marcar día como completado"}
-                      </span>
-                    </div>
-                    <button
-                      onClick={() => markDayCompleted(currentDay.id)}
-                      disabled={updatingProgress === currentDay.id || progress[currentDay.id]?.completed || false}
-                      className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                        progress[currentDay.id]?.completed || false ? "bg-green-100 text-green-700 cursor-not-allowed" : "bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-50"
-                      }`}>
-                      {updatingProgress === currentDay.id ? "Guardando..." : progress[currentDay.id]?.completed || false ? "Completado" : "Completar Día"}
-                    </button>
-                  </div>
-                </div>
+                    <Separator className="my-4" />
 
-                {/* Blocks */}
-                {currentDay.blocks.map((block) => {
+                    {/* Day Completion Section */}
+                    <div className={`flex items-center justify-between p-4 rounded-lg ${
+                      currentDay.completed ? 'bg-green-50 border border-green-200' : 'bg-muted'
+                    }`}>
+                      <div className="flex items-center gap-3">
+                        {currentDay.completed ? (
+                          <CheckCircle className="w-5 h-5 text-green-600" />
+                        ) : (
+                          <div className="w-5 h-5 border-2 border-muted-foreground rounded-full" />
+                        )}
+                        <div>
+                          <p className={`font-medium ${
+                            currentDay.completed ? 'text-green-700' : 'text-foreground'
+                          }`}>
+                            {currentDay.completed ? 'Día Completado' : 'Marcar día como completado'}
+                          </p>
+                          {currentDay.completedAt && (
+                            <p className="text-xs text-muted-foreground">
+                              Completado el {new Date(currentDay.completedAt).toLocaleDateString('es-AR')}
+                            </p>
+                          )}
+                        </div>
+                      </div>
+                      <Button
+                        onClick={() => markDayCompleted(currentDay.id, !currentDay.completed)}
+                        disabled={updatingProgress === currentDay.id}
+                        variant={currentDay.completed ? "outline" : "default"}
+                        className={currentDay.completed ? "border-green-200 text-green-700" : ""}
+                      >
+                        {updatingProgress === currentDay.id ? (
+                          "Guardando..."
+                        ) : currentDay.completed ? (
+                          "Marcar como pendiente"
+                        ) : (
+                          "Completar Día"
+                        )}
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                {/* Training Blocks */}
+                {currentDay.blocks.map((block, blockIndex) => {
                   const blockConfig = getBlockConfig(block.blockType);
                   const IconComponent = blockConfig.icon;
 
                   return (
-                    <div key={block.id} className={`bg-white rounded-lg shadow-sm border-2 ${blockConfig.color}`}>
-                      <div className="p-4 border-b border-gray-200">
-                        <div className="flex items-center gap-3">
-                          <IconComponent className={`w-5 h-5 ${blockConfig.textColor}`} />
-                          <h3 className={`font-semibold ${blockConfig.textColor}`}>{block.name}</h3>
-                        </div>
-                        {block.description && <p className="text-gray-600 mt-1 text-sm">{block.description}</p>}
-                      </div>
+                    <Card key={block.id} className="overflow-hidden">
+                      <CardHeader className={`${blockConfig.bg} border-b`}>
+                        <CardTitle className="flex items-center gap-3">
+                          <div className={`p-2 rounded-lg bg-white/80`}>
+                            <IconComponent className={`w-4 h-4 ${blockConfig.color}`} />
+                          </div>
+                          <div>
+                            <span className={blockConfig.color}>{blockConfig.label}</span>
+                            <div className="text-sm font-normal text-muted-foreground">
+                              {block.items.length} ejercicio{block.items.length !== 1 ? 's' : ''}
+                            </div>
+                          </div>
+                        </CardTitle>
+                        {block.description && (
+                          <p className="text-sm text-muted-foreground mt-2">
+                            {block.description}
+                          </p>
+                        )}
+                      </CardHeader>
 
-                      <div className="p-4">
+                      <CardContent className="p-6">
                         <div className="space-y-4">
-                          {block.items.map((item, index) => (
-                            <div key={item.id} className="bg-gray-50 rounded-lg p-4">
-                              <div className="flex items-start justify-between mb-2">
-                                <h4 className="font-medium text-gray-900">{item.name}</h4>
-                                <span className="text-sm text-gray-500">#{index + 1}</span>
-                              </div>
+                          {block.items.map((item, itemIndex) => (
+                            <Card key={item.id} className="border border-muted">
+                              <CardContent className="p-4">
+                                <div className="flex items-start justify-between mb-3">
+                                  <h4 className="font-semibold">{item.name}</h4>
+                                  <Badge variant="outline" className="ml-2">
+                                    #{itemIndex + 1}
+                                  </Badge>
+                                </div>
 
-                              <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 text-sm">
-                                {item.sets && (
-                                  <div>
-                                    <span className="text-gray-600">Series:</span>
-                                    <span className="ml-1 font-medium">{item.sets}</span>
+                                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-sm">
+                                  {item.sets && (
+                                    <div className="flex items-center gap-2">
+                                      <span className="text-muted-foreground">Series:</span>
+                                      <Badge variant="secondary">{item.sets}</Badge>
+                                    </div>
+                                  )}
+                                  {item.reps && (
+                                    <div className="flex items-center gap-2">
+                                      <span className="text-muted-foreground">Reps:</span>
+                                      <Badge variant="secondary">{item.reps}</Badge>
+                                    </div>
+                                  )}
+                                  {item.weight && (
+                                    <div className="flex items-center gap-2">
+                                      <span className="text-muted-foreground">Peso:</span>
+                                      <Badge variant="secondary">{item.weight}</Badge>
+                                    </div>
+                                  )}
+                                  {item.duration && (
+                                    <div className="flex items-center gap-2">
+                                      <Clock className="h-3 w-3 text-muted-foreground" />
+                                      <span className="text-muted-foreground">
+                                        {formatDuration(item.duration)}
+                                      </span>
+                                    </div>
+                                  )}
+                                </div>
+
+                                {item.notes && (
+                                  <div className="mt-3 p-3 bg-muted rounded-lg">
+                                    <p className="text-sm text-muted-foreground">
+                                      <strong>Notas:</strong> {item.notes}
+                                    </p>
                                   </div>
                                 )}
-                                {item.reps && (
-                                  <div>
+                              </CardContent>
+                            </Card>
+                          ))}
+                        </div>
+                      </CardContent>
+                    </Card>
+                  );
+                })}
+              </>
+            ) : (
+              <Card>
+                <CardContent className="p-12 text-center">
+                  <div className="space-y-4">
+                    <div className="p-3 rounded-full bg-muted mx-auto w-fit">
+                      <Calendar className="h-8 w-8 text-muted-foreground" />
+                    </div>
+                    <div>
+                      <h3 className="text-lg font-semibold">Selecciona un día</h3>
+                      <p className="text-muted-foreground">
+                        Elige un día de entrenamiento para ver los ejercicios
+                      </p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
                                     <span className="text-gray-600">Reps:</span>
                                     <span className="ml-1 font-medium">{item.reps}</span>
                                   </div>

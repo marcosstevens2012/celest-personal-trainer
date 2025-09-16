@@ -28,6 +28,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Textarea } from "@/components/ui/textarea";
+import { Skeleton } from "@/components/ui/skeleton";
 import {
   Calendar,
   DollarSign,
@@ -40,6 +41,11 @@ import {
   Trash2,
   Upload,
   Users,
+  User,
+  Filter,
+  MoreVertical,
+  Eye,
+  Activity
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import DashboardLayout from "../../components/DashboardLayout";
@@ -290,34 +296,36 @@ export default function StudentsPage() {
 
   return (
     <DashboardLayout>
-      <div className="space-y-6">
+      <div className="space-y-8">
         {/* Header */}
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-          <div>
-            <h1 className="text-2xl font-bold">Gestión de Alumnos</h1>
+          <div className="space-y-1">
+            <h1 className="text-3xl font-bold tracking-tight">
+              Gestión de Estudiantes
+            </h1>
             <p className="text-muted-foreground">
-              Administra tus estudiantes y sus cuotas
+              Administra tus estudiantes, cuotas y progreso
             </p>
           </div>
-          <div className="flex gap-2">
+          <div className="flex gap-3">
             <Dialog open={showImportModal} onOpenChange={setShowImportModal}>
               <DialogTrigger asChild>
-                <Button variant="outline">
-                  <Upload className="h-4 w-4 mr-2" />
+                <Button variant="outline" className="gap-2">
+                  <Upload className="h-4 w-4" />
                   Importar CSV
                 </Button>
               </DialogTrigger>
               <DialogContent>
                 <DialogHeader>
-                  <DialogTitle>Importar Alumnos desde CSV</DialogTitle>
+                  <DialogTitle>Importar Estudiantes desde CSV</DialogTitle>
                 </DialogHeader>
                 <div className="space-y-4">
                   <p className="text-sm text-muted-foreground">
                     Descarga la plantilla y completa los datos. Los campos
                     requeridos son: nombre, apellido, teléfono, cuota.
                   </p>
-                  <Button variant="outline" className="w-full">
-                    <FileText className="h-4 w-4 mr-2" />
+                  <Button variant="outline" className="w-full gap-2">
+                    <FileText className="h-4 w-4" />
                     Descargar Plantilla CSV
                   </Button>
                   <Input type="file" accept=".csv" />
@@ -328,176 +336,204 @@ export default function StudentsPage() {
 
             <Dialog open={showAddModal} onOpenChange={setShowAddModal}>
               <DialogTrigger asChild>
-                <Button>
-                  <Plus className="h-4 w-4 mr-2" />
-                  Nuevo Alumno
+                <Button size="lg" className="gap-2">
+                  <Plus className="h-4 w-4" />
+                  Nuevo Estudiante
                 </Button>
               </DialogTrigger>
               <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
                 <DialogHeader>
-                  <DialogTitle>Agregar Nuevo Alumno</DialogTitle>
+                  <DialogTitle>Agregar Nuevo Estudiante</DialogTitle>
                 </DialogHeader>
-                <form onSubmit={handleCreateStudent} className="space-y-4">
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <Label htmlFor="name">Nombre *</Label>
-                      <Input
-                        id="name"
-                        value={newStudent.name}
-                        onChange={(e) =>
-                          setNewStudent({ ...newStudent, name: e.target.value })
-                        }
-                        required
-                      />
-                    </div>
-                    <div>
-                      <Label htmlFor="lastName">Apellido *</Label>
-                      <Input
-                        id="lastName"
-                        value={newStudent.lastName}
-                        onChange={(e) =>
-                          setNewStudent({
-                            ...newStudent,
-                            lastName: e.target.value,
-                          })
-                        }
-                        required
-                      />
-                    </div>
-                  </div>
-
-                  <div>
-                    <Label htmlFor="alias">Alias</Label>
-                    <Input
-                      id="alias"
-                      value={newStudent.alias}
-                      onChange={(e) =>
-                        setNewStudent({ ...newStudent, alias: e.target.value })
-                      }
-                      placeholder="Apodo o nombre preferido"
-                    />
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <Label htmlFor="phone">Teléfono (WhatsApp) *</Label>
-                      <Input
-                        id="phone"
-                        value={newStudent.phone}
-                        onChange={(e) =>
-                          setNewStudent({
-                            ...newStudent,
-                            phone: e.target.value,
-                          })
-                        }
-                        placeholder="+54 9 11 xxxx-xxxx"
-                        required
-                      />
-                    </div>
-                    <div>
-                      <Label htmlFor="email">Email</Label>
-                      <Input
-                        id="email"
-                        type="email"
-                        value={newStudent.email}
-                        onChange={(e) =>
-                          setNewStudent({
-                            ...newStudent,
-                            email: e.target.value,
-                          })
-                        }
-                        placeholder="email@ejemplo.com"
-                      />
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <Label htmlFor="monthlyFee">Cuota Mensual (ARS) *</Label>
-                      <Input
-                        id="monthlyFee"
-                        type="number"
-                        value={newStudent.monthlyFee}
-                        onChange={(e) =>
-                          setNewStudent({
-                            ...newStudent,
-                            monthlyFee: Number(e.target.value),
-                          })
-                        }
-                        placeholder="15000"
-                        required
-                      />
-                    </div>
-                    <div>
-                      <Label htmlFor="status">Estado *</Label>
-                      <Select
-                        value={newStudent.status}
-                        onValueChange={(
-                          value: "ACTIVE" | "PAUSED" | "INACTIVE"
-                        ) => setNewStudent({ ...newStudent, status: value })}
-                      >
-                        <SelectTrigger>
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="ACTIVE">Activo</SelectItem>
-                          <SelectItem value="PAUSED">Pausado</SelectItem>
-                          <SelectItem value="INACTIVE">Inactivo</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                  </div>
-
-                  <div>
-                    <Label htmlFor="birthDate">Fecha de Nacimiento</Label>
-                    <Input
-                      id="birthDate"
-                      type="date"
-                      value={newStudent.birthDate}
-                      onChange={(e) =>
-                        setNewStudent({
-                          ...newStudent,
-                          birthDate: e.target.value,
-                        })
-                      }
-                    />
-                  </div>
-
-                  <div>
-                    <Label htmlFor="goals">
-                      Objetivos (separados por comas)
-                    </Label>
-                    <Input
-                      id="goals"
-                      value={newStudent.goals}
-                      onChange={(e) =>
-                        setNewStudent({ ...newStudent, goals: e.target.value })
-                      }
-                      placeholder="Bajar de peso, Ganar masa muscular, Mejorar resistencia"
-                    />
-                  </div>
-
-                  <div>
-                    <Label htmlFor="medicalConditions">
-                      Condiciones Médicas
-                    </Label>
-                    <Textarea
-                      id="medicalConditions"
-                      value={newStudent.medicalConditions}
-                      onChange={(e) =>
-                        setNewStudent({
-                          ...newStudent,
-                          medicalConditions: e.target.value,
-                        })
-                      }
-                      placeholder="Lesiones, alergias, condiciones médicas relevantes..."
-                    />
-                  </div>
-
-                  <div className="border-t pt-4">
-                    <h4 className="font-medium mb-3">Contacto de Emergencia</h4>
+                <form onSubmit={handleCreateStudent} className="space-y-6">
+                  {/* Basic Info */}
+                  <div className="space-y-4">
+                    <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">
+                      Información Básica
+                    </h3>
                     <div className="grid grid-cols-2 gap-4">
-                      <div>
+                      <div className="space-y-2">
+                        <Label htmlFor="name">Nombre *</Label>
+                        <Input
+                          id="name"
+                          value={newStudent.name}
+                          onChange={(e) =>
+                            setNewStudent({ ...newStudent, name: e.target.value })
+                          }
+                          required
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="lastName">Apellido *</Label>
+                        <Input
+                          id="lastName"
+                          value={newStudent.lastName}
+                          onChange={(e) =>
+                            setNewStudent({
+                              ...newStudent,
+                              lastName: e.target.value,
+                            })
+                          }
+                          required
+                        />
+                      </div>
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="alias">Alias</Label>
+                      <Input
+                        id="alias"
+                        value={newStudent.alias}
+                        onChange={(e) =>
+                          setNewStudent({ ...newStudent, alias: e.target.value })
+                        }
+                        placeholder="Apodo o nombre preferido"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Contact Info */}
+                  <div className="space-y-4">
+                    <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">
+                      Información de Contacto
+                    </h3>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="phone">Teléfono (WhatsApp) *</Label>
+                        <Input
+                          id="phone"
+                          value={newStudent.phone}
+                          onChange={(e) =>
+                            setNewStudent({
+                              ...newStudent,
+                              phone: e.target.value,
+                            })
+                          }
+                          placeholder="+54 9 11 xxxx-xxxx"
+                          required
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="email">Email</Label>
+                        <Input
+                          id="email"
+                          type="email"
+                          value={newStudent.email}
+                          onChange={(e) =>
+                            setNewStudent({
+                              ...newStudent,
+                              email: e.target.value,
+                            })
+                          }
+                          placeholder="email@ejemplo.com"
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Business Info */}
+                  <div className="space-y-4">
+                    <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">
+                      Información Comercial
+                    </h3>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="monthlyFee">Cuota Mensual (ARS) *</Label>
+                        <Input
+                          id="monthlyFee"
+                          type="number"
+                          value={newStudent.monthlyFee}
+                          onChange={(e) =>
+                            setNewStudent({
+                              ...newStudent,
+                              monthlyFee: Number(e.target.value),
+                            })
+                          }
+                          placeholder="15000"
+                          required
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="status">Estado *</Label>
+                        <Select
+                          value={newStudent.status}
+                          onValueChange={(
+                            value: "ACTIVE" | "PAUSED" | "INACTIVE"
+                          ) => setNewStudent({ ...newStudent, status: value })}
+                        >
+                          <SelectTrigger>
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="ACTIVE">Activo</SelectItem>
+                            <SelectItem value="PAUSED">Pausado</SelectItem>
+                            <SelectItem value="INACTIVE">Inactivo</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Additional Info */}
+                  <div className="space-y-4">
+                    <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">
+                      Información Adicional
+                    </h3>
+                    <div className="space-y-2">
+                      <Label htmlFor="birthDate">Fecha de Nacimiento</Label>
+                      <Input
+                        id="birthDate"
+                        type="date"
+                        value={newStudent.birthDate}
+                        onChange={(e) =>
+                          setNewStudent({
+                            ...newStudent,
+                            birthDate: e.target.value,
+                          })
+                        }
+                      />
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="goals">
+                        Objetivos (separados por comas)
+                      </Label>
+                      <Input
+                        id="goals"
+                        value={newStudent.goals}
+                        onChange={(e) =>
+                          setNewStudent({ ...newStudent, goals: e.target.value })
+                        }
+                        placeholder="Bajar de peso, Ganar masa muscular, Mejorar resistencia"
+                      />
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="medicalConditions">
+                        Condiciones Médicas
+                      </Label>
+                      <Textarea
+                        id="medicalConditions"
+                        value={newStudent.medicalConditions}
+                        onChange={(e) =>
+                          setNewStudent({
+                            ...newStudent,
+                            medicalConditions: e.target.value,
+                          })
+                        }
+                        placeholder="Lesiones, alergias, condiciones médicas relevantes..."
+                        rows={3}
+                      />
+                    </div>
+                  </div>
+
+                  {/* Emergency Contact */}
+                  <div className="space-y-4">
+                    <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">
+                      Contacto de Emergencia
+                    </h3>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="space-y-2">
                         <Label htmlFor="emergencyName">Nombre</Label>
                         <Input
                           id="emergencyName"
@@ -510,7 +546,7 @@ export default function StudentsPage() {
                           }
                         />
                       </div>
-                      <div>
+                      <div className="space-y-2">
                         <Label htmlFor="emergencyPhone">Teléfono</Label>
                         <Input
                           id="emergencyPhone"
@@ -524,7 +560,7 @@ export default function StudentsPage() {
                         />
                       </div>
                     </div>
-                    <div className="mt-2">
+                    <div className="space-y-2">
                       <Label htmlFor="emergencyRelationship">Relación</Label>
                       <Input
                         id="emergencyRelationship"
@@ -540,7 +576,8 @@ export default function StudentsPage() {
                     </div>
                   </div>
 
-                  <div>
+                  {/* Notes */}
+                  <div className="space-y-2">
                     <Label htmlFor="notes">Observaciones</Label>
                     <Textarea
                       id="notes"
@@ -548,11 +585,12 @@ export default function StudentsPage() {
                       onChange={(e) =>
                         setNewStudent({ ...newStudent, notes: e.target.value })
                       }
-                      placeholder="Notas adicionales sobre el alumno..."
+                      placeholder="Notas adicionales sobre el estudiante..."
+                      rows={3}
                     />
                   </div>
 
-                  <div className="flex justify-end gap-2 pt-4">
+                  <div className="flex justify-end gap-3 pt-6 border-t">
                     <Button
                       type="button"
                       variant="outline"
@@ -560,7 +598,9 @@ export default function StudentsPage() {
                     >
                       Cancelar
                     </Button>
-                    <Button type="submit">Crear Alumno</Button>
+                    <Button type="submit">
+                      Crear Estudiante
+                    </Button>
                   </div>
                 </form>
               </DialogContent>
@@ -569,20 +609,23 @@ export default function StudentsPage() {
         </div>
 
         {/* Statistics Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
-          <Card>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
+          <Card className="hover:shadow-md transition-shadow">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">
-                Total Alumnos
+                Total Estudiantes
               </CardTitle>
               <Users className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">{stats.total}</div>
+              <p className="text-xs text-muted-foreground mt-1">
+                Estudiantes registrados
+              </p>
             </CardContent>
           </Card>
 
-          <Card>
+          <Card className="hover:shadow-md transition-shadow">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">Activos</CardTitle>
               <div className="h-3 w-3 bg-green-500 rounded-full"></div>
@@ -591,10 +634,13 @@ export default function StudentsPage() {
               <div className="text-2xl font-bold text-green-600">
                 {stats.active}
               </div>
+              <p className="text-xs text-muted-foreground mt-1">
+                Entrenando actualmente
+              </p>
             </CardContent>
           </Card>
 
-          <Card>
+          <Card className="hover:shadow-md transition-shadow">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">Pausados</CardTitle>
               <div className="h-3 w-3 bg-yellow-500 rounded-full"></div>
@@ -603,10 +649,13 @@ export default function StudentsPage() {
               <div className="text-2xl font-bold text-yellow-600">
                 {stats.paused}
               </div>
+              <p className="text-xs text-muted-foreground mt-1">
+                Temporalmente inactivos
+              </p>
             </CardContent>
           </Card>
 
-          <Card>
+          <Card className="hover:shadow-md transition-shadow">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">Inactivos</CardTitle>
               <div className="h-3 w-3 bg-red-500 rounded-full"></div>
@@ -615,13 +664,16 @@ export default function StudentsPage() {
               <div className="text-2xl font-bold text-red-600">
                 {stats.inactive}
               </div>
+              <p className="text-xs text-muted-foreground mt-1">
+                Sin entrenamientos
+              </p>
             </CardContent>
           </Card>
 
-          <Card>
+          <Card className="hover:shadow-md transition-shadow">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">
-                Ingresos Activos
+                Ingresos Mensuales
               </CardTitle>
               <DollarSign className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
@@ -629,123 +681,210 @@ export default function StudentsPage() {
               <div className="text-xl font-bold text-green-600">
                 {formatCurrency(stats.totalRevenue)}
               </div>
+              <p className="text-xs text-muted-foreground mt-1">
+                Solo estudiantes activos
+              </p>
             </CardContent>
           </Card>
         </div>
 
         {/* Filters and Search */}
-        <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center">
-          <div className="relative flex-1 max-w-sm">
-            <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
-            <Input
-              placeholder="Buscar por nombre, teléfono..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-8"
-            />
+        <Card className="p-6">
+          <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center">
+            <div className="relative flex-1 max-w-sm">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Input
+                placeholder="Buscar por nombre, teléfono..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="pl-10"
+              />
+            </div>
+            <div className="flex items-center gap-2">
+              <Filter className="h-4 w-4 text-muted-foreground" />
+              <Select
+                value={statusFilter}
+                onValueChange={(value: "ALL" | "ACTIVE" | "PAUSED" | "INACTIVE") =>
+                  setStatusFilter(value)
+                }
+              >
+                <SelectTrigger className="w-[180px]">
+                  <SelectValue placeholder="Filtrar por estado" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="ALL">Todos los estados</SelectItem>
+                  <SelectItem value="ACTIVE">Activos</SelectItem>
+                  <SelectItem value="PAUSED">Pausados</SelectItem>
+                  <SelectItem value="INACTIVE">Inactivos</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
           </div>
-          <Select
-            value={statusFilter}
-            onValueChange={(value: "ALL" | "ACTIVE" | "PAUSED" | "INACTIVE") =>
-              setStatusFilter(value)
-            }
-          >
-            <SelectTrigger className="w-[180px]">
-              <SelectValue placeholder="Filtrar por estado" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="ALL">Todos</SelectItem>
-              <SelectItem value="ACTIVE">Activos</SelectItem>
-              <SelectItem value="PAUSED">Pausados</SelectItem>
-              <SelectItem value="INACTIVE">Inactivos</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
+        </Card>
 
         {/* Students Table */}
-        <Card>
+        <Card className="hover:shadow-md transition-shadow">
           <CardHeader>
-            <CardTitle>Alumnos ({filteredStudents.length})</CardTitle>
+            <div className="flex items-center justify-between">
+              <CardTitle className="flex items-center gap-2">
+                <Activity className="h-5 w-5" />
+                Estudiantes ({filteredStudents.length})
+              </CardTitle>
+              {filteredStudents.length > 0 && (
+                <Badge variant="outline">
+                  {filteredStudents.length} de {students.length}
+                </Badge>
+              )}
+            </div>
           </CardHeader>
           <CardContent>
             {loading ? (
-              <div className="flex justify-center p-8">Cargando...</div>
+              <div className="space-y-4">
+                {Array.from({ length: 5 }).map((_, i) => (
+                  <div key={i} className="flex items-center space-x-4 py-4">
+                    <Skeleton className="h-10 w-10 rounded-full" />
+                    <div className="space-y-2 flex-1">
+                      <Skeleton className="h-4 w-1/4" />
+                      <Skeleton className="h-3 w-1/3" />
+                    </div>
+                    <div className="space-y-2">
+                      <Skeleton className="h-4 w-20" />
+                      <Skeleton className="h-3 w-16" />
+                    </div>
+                    <Skeleton className="h-6 w-16 rounded-full" />
+                    <Skeleton className="h-8 w-20" />
+                  </div>
+                ))}
+              </div>
+            ) : filteredStudents.length === 0 ? (
+              <div className="flex flex-col items-center justify-center py-12 text-center">
+                <div className="p-3 rounded-full bg-muted mb-4">
+                  <Users className="h-8 w-8 text-muted-foreground" />
+                </div>
+                <div className="space-y-2">
+                  <h3 className="text-lg font-semibold">
+                    {searchTerm || statusFilter !== "ALL" 
+                      ? "No se encontraron estudiantes" 
+                      : "No tienes estudiantes registrados"
+                    }
+                  </h3>
+                  <p className="text-muted-foreground max-w-md">
+                    {searchTerm || statusFilter !== "ALL" 
+                      ? "Intenta ajustar los filtros de búsqueda para encontrar lo que buscas" 
+                      : "Comienza agregando tu primer estudiante para empezar a gestionar tu negocio"
+                    }
+                  </p>
+                </div>
+                {!searchTerm && statusFilter === "ALL" && (
+                  <Button 
+                    onClick={() => setShowAddModal(true)} 
+                    size="lg" 
+                    className="gap-2 mt-4"
+                  >
+                    <Plus className="h-4 w-4" />
+                    Agregar primer estudiante
+                  </Button>
+                )}
+              </div>
             ) : (
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Alumno</TableHead>
-                    <TableHead>Contacto</TableHead>
-                    <TableHead>Cuota</TableHead>
-                    <TableHead>Estado</TableHead>
-                    <TableHead>Fecha Alta</TableHead>
-                    <TableHead className="text-right">Acciones</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {filteredStudents.map((student) => (
-                    <TableRow key={student.id}>
-                      <TableCell>
-                        <div>
-                          <div className="font-medium">
-                            {student.name} {student.lastName}
-                          </div>
-                          {student.alias && (
-                            <div className="text-sm text-muted-foreground">
-                              "{student.alias}"
-                            </div>
-                          )}
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        <div className="space-y-1">
-                          <div className="flex items-center gap-1 text-sm">
-                            <Phone className="h-3 w-3" />
-                            {student.phone}
-                          </div>
-                          {student.email && (
-                            <div className="flex items-center gap-1 text-sm text-muted-foreground">
-                              <Mail className="h-3 w-3" />
-                              {student.email}
-                            </div>
-                          )}
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        <div className="font-medium">
-                          {formatCurrency(student.monthlyFee)}
-                        </div>
-                      </TableCell>
-                      <TableCell>{getStatusBadge(student.status)}</TableCell>
-                      <TableCell>
-                        <div className="flex items-center gap-1 text-sm">
-                          <Calendar className="h-3 w-3" />
-                          {new Date(student.signUpDate).toLocaleDateString(
-                            "es-AR"
-                          )}
-                        </div>
-                      </TableCell>
-                      <TableCell className="text-right">
-                        <div className="flex justify-end gap-1">
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => setEditingStudent(student)}
-                          >
-                            <Edit className="h-4 w-4" />
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => handleDeleteStudent(student.id)}
-                            className="text-red-600 hover:text-red-700"
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
-                        </div>
-                      </TableCell>
+              <div className="rounded-md border">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Estudiante</TableHead>
+                      <TableHead>Contacto</TableHead>
+                      <TableHead>Cuota Mensual</TableHead>
+                      <TableHead>Estado</TableHead>
+                      <TableHead>Fecha de Alta</TableHead>
+                      <TableHead className="text-right">Acciones</TableHead>
                     </TableRow>
-                  ))}
+                  </TableHeader>
+                  <TableBody>
+                    {filteredStudents.map((student) => (
+                      <TableRow key={student.id} className="hover:bg-muted/50 transition-colors">
+                        <TableCell>
+                          <div className="flex items-center gap-3">
+                            <div className="h-10 w-10 rounded-full bg-muted flex items-center justify-center">
+                              <User className="h-5 w-5 text-muted-foreground" />
+                            </div>
+                            <div>
+                              <div className="font-medium">
+                                {student.name} {student.lastName}
+                              </div>
+                              {student.alias && (
+                                <div className="text-sm text-muted-foreground">
+                                  "{student.alias}"
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          <div className="space-y-1">
+                            <div className="flex items-center gap-2 text-sm">
+                              <Phone className="h-3 w-3 text-muted-foreground" />
+                              <span className="font-mono">{student.phone}</span>
+                            </div>
+                            {student.email && (
+                              <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                                <Mail className="h-3 w-3" />
+                                <span className="truncate max-w-[200px]">{student.email}</span>
+                              </div>
+                            )}
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          <div className="font-medium text-lg">
+                            {formatCurrency(student.monthlyFee)}
+                          </div>
+                        </TableCell>
+                        <TableCell>{getStatusBadge(student.status)}</TableCell>
+                        <TableCell>
+                          <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                            <Calendar className="h-3 w-3" />
+                            {new Date(student.signUpDate).toLocaleDateString("es-AR")}
+                          </div>
+                        </TableCell>
+                        <TableCell className="text-right">
+                          <div className="flex justify-end gap-1">
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => setEditingStudent(student)}
+                              title="Editar estudiante"
+                            >
+                              <Edit className="h-4 w-4" />
+                            </Button>
+                            <Button
+                              variant="ghost" 
+                              size="sm"
+                              title="Ver detalles"
+                            >
+                              <Eye className="h-4 w-4" />
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => handleDeleteStudent(student.id)}
+                              className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                              title="Eliminar estudiante"
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      </div>
+    </DashboardLayout>
+  );
+}
                 </TableBody>
               </Table>
             )}

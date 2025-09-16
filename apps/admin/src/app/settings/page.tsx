@@ -1,6 +1,13 @@
 "use client";
 
-import { Badge, Button, Card } from "@repo/ui";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Separator } from "@/components/ui/separator";
+import { Textarea } from "@/components/ui/textarea";
+import { Switch } from "@/components/ui/switch";
 import {
   Bell,
   Calendar,
@@ -93,31 +100,30 @@ export default function SettingsPage() {
     <DashboardLayout>
       <div className="space-y-6">
         {/* Header */}
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900">Configuración</h1>
-          <p className="mt-1 text-sm text-gray-600">
+        <div className="space-y-2">
+          <h1 className="text-3xl font-bold tracking-tight">Configuración</h1>
+          <p className="text-muted-foreground">
             Gestiona tu perfil y preferencias de la aplicación
           </p>
         </div>
 
+        <Separator />
+
         {/* Tab Navigation */}
-        <div className="border-b border-gray-200">
-          <nav className="-mb-px flex space-x-8" aria-label="Tabs">
+        <div>
+          <nav className="flex space-x-8" aria-label="Tabs">
             {tabs.map((tab) => {
               const Icon = tab.icon;
               return (
-                <button
+                <Button
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id)}
-                  className={`${
-                    activeTab === tab.id
-                      ? "border-blue-500 text-blue-600"
-                      : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
-                  } whitespace-nowrap py-2 px-1 border-b-2 font-medium text-sm flex items-center`}
+                  variant={activeTab === tab.id ? "default" : "ghost"}
+                  className="flex items-center gap-2"
                 >
-                  <Icon className="h-4 w-4 mr-2" />
+                  <Icon className="h-4 w-4" />
                   {tab.name}
-                </button>
+                </Button>
               );
             })}
           </nav>
@@ -126,229 +132,222 @@ export default function SettingsPage() {
         {/* Tab Content */}
         {activeTab === "profile" && (
           <div className="space-y-6">
-            <Card className="p-6">
-              <h3 className="text-lg font-medium text-gray-900 mb-4">
-                Información Personal
-              </h3>
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <User className="h-5 w-5" />
+                  Información Personal
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                {/* Profile Image */}
+                <div className="flex items-center space-x-6">
+                  <div className="h-20 w-20 rounded-full bg-muted flex items-center justify-center overflow-hidden">
+                    {profile.profileImage ? (
+                      <img
+                        src={profile.profileImage}
+                        alt="Profile"
+                        className="h-20 w-20 rounded-full object-cover"
+                      />
+                    ) : (
+                      <User className="h-8 w-8 text-muted-foreground" />
+                    )}
+                  </div>
+                  <div className="space-y-2">
+                    <Button variant="outline" size="sm">
+                      <Camera className="h-4 w-4 mr-2" />
+                      Cambiar Foto
+                    </Button>
+                    <p className="text-xs text-muted-foreground">
+                      JPG, GIF o PNG. Máximo 1MB.
+                    </p>
+                  </div>
+                </div>
 
-              {/* Profile Image */}
-              <div className="flex items-center space-x-6 mb-6">
-                <div className="h-20 w-20 rounded-full bg-gray-200 flex items-center justify-center">
-                  {profile.profileImage ? (
-                    <img
-                      src={profile.profileImage}
-                      alt="Profile"
-                      className="h-20 w-20 rounded-full object-cover"
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="space-y-2">
+                    <Label htmlFor="name">Nombre Completo</Label>
+                    <Input
+                      id="name"
+                      type="text"
+                      value={profile.name}
+                      onChange={(e) =>
+                        setProfile({ ...profile, name: e.target.value })
+                      }
                     />
-                  ) : (
-                    <User className="h-8 w-8 text-gray-400" />
-                  )}
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="email">Email</Label>
+                    <Input
+                      id="email"
+                      type="email"
+                      value={profile.email}
+                      onChange={(e) =>
+                        setProfile({ ...profile, email: e.target.value })
+                      }
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="phone">Teléfono</Label>
+                    <Input
+                      id="phone"
+                      type="tel"
+                      value={profile.phone}
+                      onChange={(e) =>
+                        setProfile({ ...profile, phone: e.target.value })
+                      }
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="address">Ubicación</Label>
+                    <Input
+                      id="address"
+                      type="text"
+                      value={profile.address}
+                      onChange={(e) =>
+                        setProfile({ ...profile, address: e.target.value })
+                      }
+                    />
+                  </div>
                 </div>
-                <div>
-                  <Button variant="outline" size="sm">
-                    <Camera className="h-4 w-4 mr-2" />
-                    Cambiar Foto
+
+                <div className="space-y-2">
+                  <Label htmlFor="bio">Biografía</Label>
+                  <Textarea
+                    id="bio"
+                    value={profile.bio}
+                    onChange={(e) =>
+                      setProfile({ ...profile, bio: e.target.value })
+                    }
+                    rows={4}
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label>Certificaciones</Label>
+                  <div className="flex flex-wrap gap-2">
+                    {profile.certifications.map((cert, index) => (
+                      <Badge key={index} variant="secondary">
+                        {cert}
+                      </Badge>
+                    ))}
+                  </div>
+                </div>
+
+                <Separator />
+                
+                <div className="flex justify-end">
+                  <Button onClick={handleProfileSave} disabled={loading}>
+                    <Save className="h-4 w-4 mr-2" />
+                    {loading ? "Guardando..." : "Guardar Cambios"}
                   </Button>
-                  <p className="text-xs text-gray-500 mt-2">
-                    JPG, GIF o PNG. Máximo 1MB.
-                  </p>
                 </div>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Nombre Completo
-                  </label>
-                  <input
-                    type="text"
-                    value={profile.name}
-                    onChange={(e) =>
-                      setProfile({ ...profile, name: e.target.value })
-                    }
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Email
-                  </label>
-                  <input
-                    type="email"
-                    value={profile.email}
-                    onChange={(e) =>
-                      setProfile({ ...profile, email: e.target.value })
-                    }
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Teléfono
-                  </label>
-                  <input
-                    type="tel"
-                    value={profile.phone}
-                    onChange={(e) =>
-                      setProfile({ ...profile, phone: e.target.value })
-                    }
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Ubicación
-                  </label>
-                  <input
-                    type="text"
-                    value={profile.address}
-                    onChange={(e) =>
-                      setProfile({ ...profile, address: e.target.value })
-                    }
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                  />
-                </div>
-              </div>
-
-              <div className="mt-6">
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Biografía
-                </label>
-                <textarea
-                  value={profile.bio}
-                  onChange={(e) =>
-                    setProfile({ ...profile, bio: e.target.value })
-                  }
-                  rows={4}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                />
-              </div>
-
-              <div className="mt-6">
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Certificaciones
-                </label>
-                <div className="flex flex-wrap gap-2">
-                  {profile.certifications.map((cert, index) => (
-                    <Badge key={index} variant="secondary">
-                      {cert}
-                    </Badge>
-                  ))}
-                </div>
-              </div>
-
-              <div className="mt-6 pt-6 border-t border-gray-200">
-                <Button onClick={handleProfileSave} disabled={loading}>
-                  <Save className="h-4 w-4 mr-2" />
-                  {loading ? "Guardando..." : "Guardar Cambios"}
-                </Button>
-              </div>
+              </CardContent>
             </Card>
           </div>
         )}
 
         {activeTab === "notifications" && (
           <div className="space-y-6">
-            <Card className="p-6">
-              <h3 className="text-lg font-medium text-gray-900 mb-4">
-                Preferencias de Notificación
-              </h3>
-
-              <div className="space-y-6">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Bell className="h-5 w-5" />
+                  Preferencias de Notificación
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-6">
                 <div className="flex items-center justify-between">
-                  <div>
-                    <h4 className="text-sm font-medium text-gray-900">
-                      Notificaciones por Email
-                    </h4>
-                    <p className="text-sm text-gray-500">
+                  <div className="space-y-0.5">
+                    <Label className="text-base">Notificaciones por Email</Label>
+                    <p className="text-sm text-muted-foreground">
                       Recibir notificaciones en tu email
                     </p>
                   </div>
-                  <label className="relative inline-flex items-center cursor-pointer">
-                    <input
-                      type="checkbox"
-                      checked={notifications.emailNotifications}
-                      onChange={(e) =>
-                        setNotifications({
-                          ...notifications,
-                          emailNotifications: e.target.checked,
-                        })
-                      }
-                      className="sr-only peer"
-                    />
-                    <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
-                  </label>
+                  <Switch
+                    checked={notifications.emailNotifications}
+                    onCheckedChange={(checked) =>
+                      setNotifications({
+                        ...notifications,
+                        emailNotifications: checked,
+                      })
+                    }
+                  />
                 </div>
 
+                <Separator />
+
                 <div className="flex items-center justify-between">
-                  <div>
-                    <h4 className="text-sm font-medium text-gray-900">
-                      Notificaciones SMS
-                    </h4>
-                    <p className="text-sm text-gray-500">
+                  <div className="space-y-0.5">
+                    <Label className="text-base">Notificaciones SMS</Label>
+                    <p className="text-sm text-muted-foreground">
                       Recibir notificaciones por mensaje de texto
                     </p>
                   </div>
-                  <label className="relative inline-flex items-center cursor-pointer">
-                    <input
-                      type="checkbox"
-                      checked={notifications.smsNotifications}
-                      onChange={(e) =>
-                        setNotifications({
-                          ...notifications,
-                          smsNotifications: e.target.checked,
-                        })
-                      }
-                      className="sr-only peer"
-                    />
-                    <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
-                  </label>
+                  <Switch
+                    checked={notifications.smsNotifications}
+                    onCheckedChange={(checked) =>
+                      setNotifications({
+                        ...notifications,
+                        smsNotifications: checked,
+                      })
+                    }
+                  />
                 </div>
 
+                <Separator />
+
                 <div className="flex items-center justify-between">
-                  <div>
-                    <h4 className="text-sm font-medium text-gray-900">
-                      Recordatorios de Pagos
-                    </h4>
-                    <p className="text-sm text-gray-500">
+                  <div className="space-y-0.5">
+                    <Label className="text-base">Recordatorios de Pagos</Label>
+                    <p className="text-sm text-muted-foreground">
                       Alertas sobre pagos pendientes y vencidos
                     </p>
                   </div>
-                  <label className="relative inline-flex items-center cursor-pointer">
-                    <input
-                      type="checkbox"
-                      checked={notifications.paymentReminders}
-                      onChange={(e) =>
-                        setNotifications({
-                          ...notifications,
-                          paymentReminders: e.target.checked,
-                        })
-                      }
-                      className="sr-only peer"
-                    />
-                    <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
-                  </label>
+                  <Switch
+                    checked={notifications.paymentReminders}
+                    onCheckedChange={(checked) =>
+                      setNotifications({
+                        ...notifications,
+                        paymentReminders: checked,
+                      })
+                    }
+                  />
                 </div>
 
+                <Separator />
+
                 <div className="flex items-center justify-between">
-                  <div>
-                    <h4 className="text-sm font-medium text-gray-900">
-                      Vencimiento de Planes
-                    </h4>
-                    <p className="text-sm text-gray-500">
+                  <div className="space-y-0.5">
+                    <Label className="text-base">Vencimiento de Planes</Label>
+                    <p className="text-sm text-muted-foreground">
                       Alertas cuando los planes están por vencer
                     </p>
                   </div>
-                  <label className="relative inline-flex items-center cursor-pointer">
-                    <input
-                      type="checkbox"
-                      checked={notifications.planExpirations}
-                      onChange={(e) =>
-                        setNotifications({
-                          ...notifications,
+                  <Switch
+                    checked={notifications.planExpirations}
+                    onCheckedChange={(checked) =>
+                      setNotifications({
+                        ...notifications,
+                        planExpirations: checked,
+                      })
+                    }
+                  />
+                </div>
+
+                <Separator />
+
+                <div className="flex justify-end">
+                  <Button onClick={handleNotificationsSave} disabled={loading}>
+                    <Save className="h-4 w-4 mr-2" />
+                    {loading ? "Guardando..." : "Guardar Cambios"}
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
                           planExpirations: e.target.checked,
                         })
                       }
