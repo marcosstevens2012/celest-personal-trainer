@@ -6,7 +6,10 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
-import { Textarea } from "@/components/ui/textarea";
+import { Textarea }                   <Button onClick={handleNotificationsSave} disabled={loading}>
+                    <Save className="h-4 w-4 mr-2" />
+                    {loading ? "Guardando..." : "Guardar Cambios"}
+                  </Button> "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import {
   Bell,
@@ -75,7 +78,7 @@ export default function SettingsPage() {
     }
   };
 
-  const handleNotificationSave = async () => {
+  const handleNotificationsSave = async () => {
     setLoading(true);
     try {
       // Here you would save the notification settings

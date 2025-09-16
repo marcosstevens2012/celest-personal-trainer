@@ -3,50 +3,14 @@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import { Textarea } from "@/components/ui/textarea";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
-import {
-  Calendar,
-  DollarSign,
-  Edit,
-  FileText,
-  Mail,
-  Phone,
-  Plus,
-  Search,
-  Trash2,
-  Upload,
-  Users,
-  User,
-  Filter,
-  MoreVertical,
-  Eye,
-  Activity
-} from "lucide-react";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Textarea } from "@/components/ui/textarea";
+import { Activity, Calendar, DollarSign, Edit, Eye, FileText, Filter, Mail, Phone, Plus, Search, Trash2, Upload, User, Users } from "lucide-react";
 import { useEffect, useState } from "react";
 import DashboardLayout from "../../components/DashboardLayout";
 
@@ -94,9 +58,7 @@ export default function StudentsPage() {
   const [students, setStudents] = useState<Student[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
-  const [statusFilter, setStatusFilter] = useState<
-    "ALL" | "ACTIVE" | "PAUSED" | "INACTIVE"
-  >("ALL");
+  const [statusFilter, setStatusFilter] = useState<"ALL" | "ACTIVE" | "PAUSED" | "INACTIVE">("ALL");
   const [showAddModal, setShowAddModal] = useState(false);
   const [editingStudent, setEditingStudent] = useState<Student | null>(null);
   const [showImportModal, setShowImportModal] = useState(false);
@@ -153,8 +115,7 @@ export default function StudentsPage() {
             ? JSON.stringify({
                 name: newStudent.emergencyContactName,
                 phone: newStudent.emergencyContactPhone,
-                relationship:
-                  newStudent.emergencyContactRelationship || "No especificado",
+                relationship: newStudent.emergencyContactRelationship || "No especificado",
               })
             : null,
       };
@@ -176,10 +137,7 @@ export default function StudentsPage() {
   };
 
   // Actualizar estudiante
-  const handleUpdateStudent = async (
-    studentId: string,
-    updates: Partial<NewStudent>
-  ) => {
+  const handleUpdateStudent = async (studentId: string, updates: Partial<NewStudent>) => {
     try {
       const response = await fetch(`/api/students/${studentId}`, {
         method: "PATCH",
@@ -241,12 +199,10 @@ export default function StudentsPage() {
     const matchesSearch =
       student.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       student.lastName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      (student.alias &&
-        student.alias.toLowerCase().includes(searchTerm.toLowerCase())) ||
+      (student.alias && student.alias.toLowerCase().includes(searchTerm.toLowerCase())) ||
       student.phone.includes(searchTerm);
 
-    const matchesStatus =
-      statusFilter === "ALL" || student.status === statusFilter;
+    const matchesStatus = statusFilter === "ALL" || student.status === statusFilter;
 
     return matchesSearch && matchesStatus;
   });
@@ -257,9 +213,7 @@ export default function StudentsPage() {
     active: students.filter((s) => s.status === "ACTIVE").length,
     paused: students.filter((s) => s.status === "PAUSED").length,
     inactive: students.filter((s) => s.status === "INACTIVE").length,
-    totalRevenue: students
-      .filter((s) => s.status === "ACTIVE")
-      .reduce((sum, s) => sum + s.monthlyFee, 0),
+    totalRevenue: students.filter((s) => s.status === "ACTIVE").reduce((sum, s) => sum + s.monthlyFee, 0),
   };
 
   const getStatusBadge = (status: string) => {
@@ -300,12 +254,8 @@ export default function StudentsPage() {
         {/* Header */}
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
           <div className="space-y-1">
-            <h1 className="text-3xl font-bold tracking-tight">
-              Gestión de Estudiantes
-            </h1>
-            <p className="text-muted-foreground">
-              Administra tus estudiantes, cuotas y progreso
-            </p>
+            <h1 className="text-3xl font-bold tracking-tight">Gestión de Estudiantes</h1>
+            <p className="text-muted-foreground">Administra tus estudiantes, cuotas y progreso</p>
           </div>
           <div className="flex gap-3">
             <Dialog open={showImportModal} onOpenChange={setShowImportModal}>
@@ -320,10 +270,7 @@ export default function StudentsPage() {
                   <DialogTitle>Importar Estudiantes desde CSV</DialogTitle>
                 </DialogHeader>
                 <div className="space-y-4">
-                  <p className="text-sm text-muted-foreground">
-                    Descarga la plantilla y completa los datos. Los campos
-                    requeridos son: nombre, apellido, teléfono, cuota.
-                  </p>
+                  <p className="text-sm text-muted-foreground">Descarga la plantilla y completa los datos. Los campos requeridos son: nombre, apellido, teléfono, cuota.</p>
                   <Button variant="outline" className="w-full gap-2">
                     <FileText className="h-4 w-4" />
                     Descargar Plantilla CSV
@@ -348,20 +295,11 @@ export default function StudentsPage() {
                 <form onSubmit={handleCreateStudent} className="space-y-6">
                   {/* Basic Info */}
                   <div className="space-y-4">
-                    <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">
-                      Información Básica
-                    </h3>
+                    <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">Información Básica</h3>
                     <div className="grid grid-cols-2 gap-4">
                       <div className="space-y-2">
                         <Label htmlFor="name">Nombre *</Label>
-                        <Input
-                          id="name"
-                          value={newStudent.name}
-                          onChange={(e) =>
-                            setNewStudent({ ...newStudent, name: e.target.value })
-                          }
-                          required
-                        />
+                        <Input id="name" value={newStudent.name} onChange={(e) => setNewStudent({ ...newStudent, name: e.target.value })} required />
                       </div>
                       <div className="space-y-2">
                         <Label htmlFor="lastName">Apellido *</Label>
@@ -381,22 +319,13 @@ export default function StudentsPage() {
 
                     <div className="space-y-2">
                       <Label htmlFor="alias">Alias</Label>
-                      <Input
-                        id="alias"
-                        value={newStudent.alias}
-                        onChange={(e) =>
-                          setNewStudent({ ...newStudent, alias: e.target.value })
-                        }
-                        placeholder="Apodo o nombre preferido"
-                      />
+                      <Input id="alias" value={newStudent.alias} onChange={(e) => setNewStudent({ ...newStudent, alias: e.target.value })} placeholder="Apodo o nombre preferido" />
                     </div>
                   </div>
 
                   {/* Contact Info */}
                   <div className="space-y-4">
-                    <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">
-                      Información de Contacto
-                    </h3>
+                    <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">Información de Contacto</h3>
                     <div className="grid grid-cols-2 gap-4">
                       <div className="space-y-2">
                         <Label htmlFor="phone">Teléfono (WhatsApp) *</Label>
@@ -433,9 +362,7 @@ export default function StudentsPage() {
 
                   {/* Business Info */}
                   <div className="space-y-4">
-                    <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">
-                      Información Comercial
-                    </h3>
+                    <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">Información Comercial</h3>
                     <div className="grid grid-cols-2 gap-4">
                       <div className="space-y-2">
                         <Label htmlFor="monthlyFee">Cuota Mensual (ARS) *</Label>
@@ -455,12 +382,7 @@ export default function StudentsPage() {
                       </div>
                       <div className="space-y-2">
                         <Label htmlFor="status">Estado *</Label>
-                        <Select
-                          value={newStudent.status}
-                          onValueChange={(
-                            value: "ACTIVE" | "PAUSED" | "INACTIVE"
-                          ) => setNewStudent({ ...newStudent, status: value })}
-                        >
+                        <Select value={newStudent.status} onValueChange={(value: "ACTIVE" | "PAUSED" | "INACTIVE") => setNewStudent({ ...newStudent, status: value })}>
                           <SelectTrigger>
                             <SelectValue />
                           </SelectTrigger>
@@ -476,9 +398,7 @@ export default function StudentsPage() {
 
                   {/* Additional Info */}
                   <div className="space-y-4">
-                    <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">
-                      Información Adicional
-                    </h3>
+                    <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">Información Adicional</h3>
                     <div className="space-y-2">
                       <Label htmlFor="birthDate">Fecha de Nacimiento</Label>
                       <Input
@@ -495,23 +415,17 @@ export default function StudentsPage() {
                     </div>
 
                     <div className="space-y-2">
-                      <Label htmlFor="goals">
-                        Objetivos (separados por comas)
-                      </Label>
+                      <Label htmlFor="goals">Objetivos (separados por comas)</Label>
                       <Input
                         id="goals"
                         value={newStudent.goals}
-                        onChange={(e) =>
-                          setNewStudent({ ...newStudent, goals: e.target.value })
-                        }
+                        onChange={(e) => setNewStudent({ ...newStudent, goals: e.target.value })}
                         placeholder="Bajar de peso, Ganar masa muscular, Mejorar resistencia"
                       />
                     </div>
 
                     <div className="space-y-2">
-                      <Label htmlFor="medicalConditions">
-                        Condiciones Médicas
-                      </Label>
+                      <Label htmlFor="medicalConditions">Condiciones Médicas</Label>
                       <Textarea
                         id="medicalConditions"
                         value={newStudent.medicalConditions}
@@ -529,9 +443,7 @@ export default function StudentsPage() {
 
                   {/* Emergency Contact */}
                   <div className="space-y-4">
-                    <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">
-                      Contacto de Emergencia
-                    </h3>
+                    <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">Contacto de Emergencia</h3>
                     <div className="grid grid-cols-2 gap-4">
                       <div className="space-y-2">
                         <Label htmlFor="emergencyName">Nombre</Label>
@@ -582,25 +494,17 @@ export default function StudentsPage() {
                     <Textarea
                       id="notes"
                       value={newStudent.notes}
-                      onChange={(e) =>
-                        setNewStudent({ ...newStudent, notes: e.target.value })
-                      }
+                      onChange={(e) => setNewStudent({ ...newStudent, notes: e.target.value })}
                       placeholder="Notas adicionales sobre el estudiante..."
                       rows={3}
                     />
                   </div>
 
                   <div className="flex justify-end gap-3 pt-6 border-t">
-                    <Button
-                      type="button"
-                      variant="outline"
-                      onClick={() => setShowAddModal(false)}
-                    >
+                    <Button type="button" variant="outline" onClick={() => setShowAddModal(false)}>
                       Cancelar
                     </Button>
-                    <Button type="submit">
-                      Crear Estudiante
-                    </Button>
+                    <Button type="submit">Crear Estudiante</Button>
                   </div>
                 </form>
               </DialogContent>
@@ -612,16 +516,12 @@ export default function StudentsPage() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
           <Card className="hover:shadow-md transition-shadow">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">
-                Total Estudiantes
-              </CardTitle>
+              <CardTitle className="text-sm font-medium">Total Estudiantes</CardTitle>
               <Users className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">{stats.total}</div>
-              <p className="text-xs text-muted-foreground mt-1">
-                Estudiantes registrados
-              </p>
+              <p className="text-xs text-muted-foreground mt-1">Estudiantes registrados</p>
             </CardContent>
           </Card>
 
@@ -631,12 +531,8 @@ export default function StudentsPage() {
               <div className="h-3 w-3 bg-green-500 rounded-full"></div>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-green-600">
-                {stats.active}
-              </div>
-              <p className="text-xs text-muted-foreground mt-1">
-                Entrenando actualmente
-              </p>
+              <div className="text-2xl font-bold text-green-600">{stats.active}</div>
+              <p className="text-xs text-muted-foreground mt-1">Entrenando actualmente</p>
             </CardContent>
           </Card>
 
@@ -646,12 +542,8 @@ export default function StudentsPage() {
               <div className="h-3 w-3 bg-yellow-500 rounded-full"></div>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-yellow-600">
-                {stats.paused}
-              </div>
-              <p className="text-xs text-muted-foreground mt-1">
-                Temporalmente inactivos
-              </p>
+              <div className="text-2xl font-bold text-yellow-600">{stats.paused}</div>
+              <p className="text-xs text-muted-foreground mt-1">Temporalmente inactivos</p>
             </CardContent>
           </Card>
 
@@ -661,29 +553,19 @@ export default function StudentsPage() {
               <div className="h-3 w-3 bg-red-500 rounded-full"></div>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-red-600">
-                {stats.inactive}
-              </div>
-              <p className="text-xs text-muted-foreground mt-1">
-                Sin entrenamientos
-              </p>
+              <div className="text-2xl font-bold text-red-600">{stats.inactive}</div>
+              <p className="text-xs text-muted-foreground mt-1">Sin entrenamientos</p>
             </CardContent>
           </Card>
 
           <Card className="hover:shadow-md transition-shadow">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">
-                Ingresos Mensuales
-              </CardTitle>
+              <CardTitle className="text-sm font-medium">Ingresos Mensuales</CardTitle>
               <DollarSign className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-xl font-bold text-green-600">
-                {formatCurrency(stats.totalRevenue)}
-              </div>
-              <p className="text-xs text-muted-foreground mt-1">
-                Solo estudiantes activos
-              </p>
+              <div className="text-xl font-bold text-green-600">{formatCurrency(stats.totalRevenue)}</div>
+              <p className="text-xs text-muted-foreground mt-1">Solo estudiantes activos</p>
             </CardContent>
           </Card>
         </div>
@@ -693,21 +575,11 @@ export default function StudentsPage() {
           <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center">
             <div className="relative flex-1 max-w-sm">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              <Input
-                placeholder="Buscar por nombre, teléfono..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10"
-              />
+              <Input placeholder="Buscar por nombre, teléfono..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="pl-10" />
             </div>
             <div className="flex items-center gap-2">
               <Filter className="h-4 w-4 text-muted-foreground" />
-              <Select
-                value={statusFilter}
-                onValueChange={(value: "ALL" | "ACTIVE" | "PAUSED" | "INACTIVE") =>
-                  setStatusFilter(value)
-                }
-              >
+              <Select value={statusFilter} onValueChange={(value: "ALL" | "ACTIVE" | "PAUSED" | "INACTIVE") => setStatusFilter(value)}>
                 <SelectTrigger className="w-[180px]">
                   <SelectValue placeholder="Filtrar por estado" />
                 </SelectTrigger>
@@ -762,25 +634,15 @@ export default function StudentsPage() {
                   <Users className="h-8 w-8 text-muted-foreground" />
                 </div>
                 <div className="space-y-2">
-                  <h3 className="text-lg font-semibold">
-                    {searchTerm || statusFilter !== "ALL" 
-                      ? "No se encontraron estudiantes" 
-                      : "No tienes estudiantes registrados"
-                    }
-                  </h3>
+                  <h3 className="text-lg font-semibold">{searchTerm || statusFilter !== "ALL" ? "No se encontraron estudiantes" : "No tienes estudiantes registrados"}</h3>
                   <p className="text-muted-foreground max-w-md">
-                    {searchTerm || statusFilter !== "ALL" 
-                      ? "Intenta ajustar los filtros de búsqueda para encontrar lo que buscas" 
-                      : "Comienza agregando tu primer estudiante para empezar a gestionar tu negocio"
-                    }
+                    {searchTerm || statusFilter !== "ALL"
+                      ? "Intenta ajustar los filtros de búsqueda para encontrar lo que buscas"
+                      : "Comienza agregando tu primer estudiante para empezar a gestionar tu negocio"}
                   </p>
                 </div>
                 {!searchTerm && statusFilter === "ALL" && (
-                  <Button 
-                    onClick={() => setShowAddModal(true)} 
-                    size="lg" 
-                    className="gap-2 mt-4"
-                  >
+                  <Button onClick={() => setShowAddModal(true)} size="lg" className="gap-2 mt-4">
                     <Plus className="h-4 w-4" />
                     Agregar primer estudiante
                   </Button>
@@ -811,11 +673,7 @@ export default function StudentsPage() {
                               <div className="font-medium">
                                 {student.name} {student.lastName}
                               </div>
-                              {student.alias && (
-                                <div className="text-sm text-muted-foreground">
-                                  "{student.alias}"
-                                </div>
-                              )}
+                              {student.alias && <div className="text-sm text-muted-foreground">"{student.alias}"</div>}
                             </div>
                           </div>
                         </TableCell>
@@ -834,9 +692,7 @@ export default function StudentsPage() {
                           </div>
                         </TableCell>
                         <TableCell>
-                          <div className="font-medium text-lg">
-                            {formatCurrency(student.monthlyFee)}
-                          </div>
+                          <div className="font-medium text-lg">{formatCurrency(student.monthlyFee)}</div>
                         </TableCell>
                         <TableCell>{getStatusBadge(student.status)}</TableCell>
                         <TableCell>
@@ -847,28 +703,13 @@ export default function StudentsPage() {
                         </TableCell>
                         <TableCell className="text-right">
                           <div className="flex justify-end gap-1">
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => setEditingStudent(student)}
-                              title="Editar estudiante"
-                            >
+                            <Button variant="ghost" size="sm" onClick={() => setEditingStudent(student)} title="Editar estudiante">
                               <Edit className="h-4 w-4" />
                             </Button>
-                            <Button
-                              variant="ghost" 
-                              size="sm"
-                              title="Ver detalles"
-                            >
+                            <Button variant="ghost" size="sm" title="Ver detalles">
                               <Eye className="h-4 w-4" />
                             </Button>
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => handleDeleteStudent(student.id)}
-                              className="text-red-600 hover:text-red-700 hover:bg-red-50"
-                              title="Eliminar estudiante"
-                            >
+                            <Button variant="ghost" size="sm" onClick={() => handleDeleteStudent(student.id)} className="text-red-600 hover:text-red-700 hover:bg-red-50" title="Eliminar estudiante">
                               <Trash2 className="h-4 w-4" />
                             </Button>
                           </div>
@@ -877,33 +718,6 @@ export default function StudentsPage() {
                     ))}
                   </TableBody>
                 </Table>
-              </div>
-            )}
-          </CardContent>
-        </Card>
-      </div>
-    </DashboardLayout>
-  );
-}
-                </TableBody>
-              </Table>
-            )}
-
-            {!loading && filteredStudents.length === 0 && (
-              <div className="text-center py-8">
-                <Users className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
-                <h3 className="text-lg font-medium mb-2">No hay alumnos</h3>
-                <p className="text-muted-foreground mb-4">
-                  {searchTerm || statusFilter !== "ALL"
-                    ? "No se encontraron alumnos con los filtros aplicados."
-                    : "Comienza agregando tu primer alumno."}
-                </p>
-                {!searchTerm && statusFilter === "ALL" && (
-                  <Button onClick={() => setShowAddModal(true)}>
-                    <Plus className="h-4 w-4 mr-2" />
-                    Agregar Alumno
-                  </Button>
-                )}
               </div>
             )}
           </CardContent>
